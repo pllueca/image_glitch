@@ -1,0 +1,5 @@
+imageio
+numpy
+flask
+itsdangerous
+werkzeug
