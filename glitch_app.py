@@ -45,7 +45,7 @@ def home():
     if (file == '' or file.filename == '') and url == '':
       print('No file or url')
       return redirect(request.url)
-    if (file = '' or file.filename = '') and url != '':
+    if (file == '' or file.filename == '') and url != '':
       print('Only one of url or file must be provided')
       return redirect(request.url)
 

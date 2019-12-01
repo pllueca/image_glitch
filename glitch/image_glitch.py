@@ -1,8 +1,5 @@
-import subprocess
-
 import imageio
 import numpy as np
-import ffmpeg
 
 
 def move_channel(arr, channel, deltax, deltay):
@@ -97,53 +94,3 @@ def salt_and_pepper(arr, intensity=.6, noise_frac=.02):
   noise_rgb[np.where(noise_mask == 1)] = 255, 255, 255
 
   return (arr.copy() * intensity + noise_rgb * (1 - intensity)).astype(np.uint8)
-
-
-def glitch_image(image_path, dest_path):
-  im = imageio.imread(image_path)
-  width, height, channels = im.shape
-  if channels == 4:
-    alpha_band = im[..., 3]
-    im = im[..., :3]
-
-  for _ in range(2):
-    blocksize_x = np.random.randint(min(width, height) * .1, max(width, height) * .3)
-    blocksize_y = 3 * blocksize_x
-    im = move_blocks(im, blocksize=(blocksize_x, blocksize_y), num_blocks=2, per_channel=True)
-
-  for _ in range(2):
-    blocksize_x = np.random.randint(min(width, height) * .3, max(width, height) * .5)
-    blocksize_y = int(0.8 * blocksize_x)
-    im = move_blocks(im, blocksize=(blocksize_x, blocksize_y), num_blocks=1, per_channel=True)
-
-  im = move_channels_random(im, -5, 5)
-  im = salt_and_pepper(im, 0.5, .02)
-
-  # restore alpha
-  if channels == 4:
-    alpha_band = np.expand_dims(alpha_band, axis=-1)
-    im = np.concatenate((im, alpha_band), axis=-1)
-  imageio.imwrite(dest_path, im)
-
-
-def start_ffmpeg_writer(out_filename, width, height):
-  args = (
-      ffmpeg.input('pipe:', format='rawvideo', pix_fmt='rgb24', s='{}x{}'.format(width, height))
-      .output(out_filename, pix_fmt='yuv420p')
-      .overwrite_output()
-      .compile()
-  )
-  return subprocess.Popen(args, stdin=subprocess.PIPE)
-
-def make_glitch_video_slow_channel_move(src_image, num_frames, output_fpath):
-  im = imageio.imread(src_image)
-  w, h, _ = im.shape
-  p = start_ffmpeg_writer(output_fpath, h, w)
-  for i in range(num_frames):
-    for c in range(3):
-      dx = np.random.randint(-5,5)
-      dy = np.random.randint(-5,5)
-      im = move_channel(im, c, dx, dy)
-    p.stdin.write(im.astype(np.uint8).tobytes())
-  p.stdin.close()
-  p.wait() 
