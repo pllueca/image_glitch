@@ -15,7 +15,15 @@
             </div>
             <div class="row">
                 <div class="image col-md-8">
-                    <img src="{{ url_for('static', filename=image_fname)}}" style="max-width:800px;max-height:800px;object-fit:cover">
+                    {% if file_type == 'image' %}
+                        <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:800px;max-height:800px;object-fit:cover">
+                    {% elif file_type == 'video' %}
+                        <video width="400" controls>
+                            <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
+                          Your browser does not support HTML5 video.
+                        </video>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
