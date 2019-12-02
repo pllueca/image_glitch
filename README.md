@@ -1,6 +1,7 @@
 # Glitch
+
 Python app to apply [glitch art](https://en.wikipedia.org/wiki/Glitch_art) style to images and videos.
-to run the app run:
+to run the app locally run:
 
 ```
 pip install -r requirements

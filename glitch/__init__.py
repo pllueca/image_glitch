@@ -1,7 +1,8 @@
 from .image_glitch import (
     move_channel,
     move_channels_random,
-    move_blocks,
+    swap_block,
+    move_random_blocks,
     flip_block,
     salt_and_pepper,
 )
