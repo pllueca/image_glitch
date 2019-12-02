@@ -39,28 +39,28 @@ def swap_block(
     dst_block_y,
     block_width,
     block_height,
-    channel=None
+    channel=None,
 ):
     """ swap the contents of the blocks. If channel is None, swap all the channels """
     channel = channel or ...
     dst_arr[
-        origin_block_x: origin_block_x + block_width,
-        origin_block_y: origin_block_y + block_height,
-        channel
+        origin_block_x : origin_block_x + block_width,
+        origin_block_y : origin_block_y + block_height,
+        channel,
     ] = origin_arr[
-        dst_block_x: dst_block_x + block_width,
-        dst_block_y: dst_block_y + block_height,
-        channel
+        dst_block_x : dst_block_x + block_width,
+        dst_block_y : dst_block_y + block_height,
+        channel,
     ]
 
     dst_arr[
-        dst_block_x: dst_block_x + block_width,
-        dst_block_y: dst_block_y + block_height,
-        channel
+        dst_block_x : dst_block_x + block_width,
+        dst_block_y : dst_block_y + block_height,
+        channel,
     ] = origin_arr[
-        origin_block_x: origin_block_x + block_width,
-        origin_block_y: origin_block_y + block_height,
-        channel
+        origin_block_x : origin_block_x + block_width,
+        origin_block_y : origin_block_y + block_height,
+        channel,
     ]
 
     return dst_arr
@@ -75,8 +75,8 @@ def move_random_blocks(arr, max_blocksize=(5, 5), num_blocks=5, per_channel=Fals
         block_size_x = np.random.randint(1, max_block_size_x)
         block_size_y = np.random.randint(1, max_block_size_y)
 
-        block_origin_x= np.random.randint(0, w - block_size_x)
-        block_origin_y= np.random.randint(0, h - block_size_y)
+        block_origin_x = np.random.randint(0, w - block_size_x)
+        block_origin_y = np.random.randint(0, h - block_size_y)
 
         block_dest_x = np.random.randint(0, w - block_size_x)
         block_dest_y = np.random.randint(0, h - block_size_y)
@@ -86,7 +86,17 @@ def move_random_blocks(arr, max_blocksize=(5, 5), num_blocks=5, per_channel=Fals
         else:
             channel = None
 
-        res = swap_block(arr, res, block_origin_x, block_origin_y, block_dest_x, block_dest_y, block_size_x, block_size_y, channel,)
+        res = swap_block(
+            arr,
+            res,
+            block_origin_x,
+            block_origin_y,
+            block_dest_x,
+            block_dest_y,
+            block_size_x,
+            block_size_y,
+            channel,
+        )
     return res
 
 
@@ -103,23 +113,23 @@ def flip_block(arr, blocksize, per_channel):
         for c in range(n_channels):
             if np.random.randint(0, 1):
                 flipped_block = arr[
-                    block_x: block_x + block_size_x,
-                    block_y: block_y + block_size_y,
+                    block_x : block_x + block_size_x,
+                    block_y : block_y + block_size_y,
                     c,
                 ]
                 flipped_block = flipped_block[::-1, ::-1]
                 res[
-                    block_x: block_x + block_size_x,
-                    block_y: block_y + block_size_y,
+                    block_x : block_x + block_size_x,
+                    block_y : block_y + block_size_y,
                     c,
                 ] = flipped_block
     else:
         flipped_block = arr[
-            block_x: block_x + block_size_x, block_y: block_y + block_size_y, ...
+            block_x : block_x + block_size_x, block_y : block_y + block_size_y, ...
         ]
         flipped_block = flipped_block[::-1, ::-1]
         res[
-            block_x: block_x + block_size_x, block_y: block_y + block_size_y
+            block_x : block_x + block_size_x, block_y : block_y + block_size_y
         ] = flipped_block
     return res
 
