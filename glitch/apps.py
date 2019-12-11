@@ -1,7 +1,7 @@
 import imageio
 import numpy as np
 
-from .image_glitch import move_blocks, move_channels_random, salt_and_pepper
+from .image_glitch import move_random_blocks, move_channels_random, salt_and_pepper
 from .video_utils import (
     get_video_size,
     start_ffmpeg_reader,
@@ -13,9 +13,9 @@ from .video_utils import (
 def glitch_image(input_path, output_path):
     image = imageio.imread(input_path)
 
-    image = move_blocks(image, blocksize=(150, 400), num_blocks=3, per_channel=True)
+    image = move_random_blocks(image, max_blocksize=(150, 400), num_blocks=3, per_channel=True)
 
-    image = move_blocks(image, blocksize=(200, 50), num_blocks=5, per_channel=True)
+    image = move_random_blocks(image, max_blocksize=(200, 50), num_blocks=5, per_channel=True)
 
     image = move_channels_random(image, -10, 10)
 
@@ -54,9 +54,9 @@ def glitch_video(input_path, output_path):
             blocksize_y = np.random.randint(
                 min(width, height) * 0.1, max(width, height) * 0.5
             )
-            frame = move_blocks(
+            frame = move_random_blocks(
                 frame,
-                blocksize=(blocksize_x, blocksize_y),
+                max_blocksize=(blocksize_x, blocksize_y),
                 num_blocks=3,
                 per_channel=True,
             )
