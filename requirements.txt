@@ -1,8 +1,9 @@
-imageio
+Pillow
+requests
 numpy
+imageio
 flask
 itsdangerous
 werkzeug
 sh
 ffmpeg-python
-
