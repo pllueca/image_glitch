@@ -19,14 +19,45 @@ STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
 IMAGE_OPTIONS = {
-    "intensity_noise":   "Noise Intensity",
-    "intensity_fractal": "Fractal Intensity",
-    "block_movement":    "Block Movement",
-    "block_size":        "Block Size",
-    "channels_movement": "Channels Movement"
+    "intensity_noise":   {
+        "label": "Noise Intensity",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    },
+    "intensity_fractal": {
+        "label": "Fractal Intensity",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    },
+    "block_movement":    {
+        "label": "Block Movement",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    },
+    "block_size":        {
+        "label": "Block Size",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    },
+    "channels_movement": {
+        "label": "Channels Movement",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    }
 }
+
 VIDEO_OPTIONS = {
-    
+    "min_effect_length": {
+        "label": "Minimum effect duration (in frames)",
+        "min": 1, "max": 10, "step": 1, "default": 1
+    },
+    "max_effect_length": {
+        "label": "Maximum effect duration (in frames)",
+        "min": 5, "max": 30, "step": 1, "default": 15
+    },
+    "block_size": {
+        "label": "Block Size",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    },
+    "block_effect": {
+        "label": "Block Effect Amount",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+    }
 }
 
 app = Flask(__name__, static_folder=STATIC_FOLDER)
@@ -64,17 +95,20 @@ def hash_file(filename: str) -> str:
     with open(filename, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
-def get_options(request) -> object:
-    return { key: request.args.get(key) for key in IMAGE_OPTIONS.keys() }
+def get_options(file_type, request) -> object:
+    opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS  
+    return { key: request.args.get(key) for key in opt.keys() }
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
 def glitch(gid):
-    options = get_options(request)
-
     filepath = signer.loads(gid)
     file_type = get_file_type(filepath)
     extension = file_extension(filepath)
     file_hash = hash_file(filepath)
+    
+    options = get_options(file_type, request)
+    
+    print(f"Submitted options: {options}")
 
     if not osp.exists(osp.join(STATIC_FOLDER, file_type, file_hash)):
         os.makedirs(osp.join(STATIC_FOLDER, file_type, file_hash))
@@ -100,7 +134,7 @@ def glitch(gid):
     if file_type == "image":
         glitch_image(filepath, glitched_filepath, options)
     elif file_type == "video":
-        glitch_video(filepath, glitched_filepath)
+        glitch_video(filepath, glitched_filepath, options)
 
     return render_template(
         "glitch.html",
@@ -118,7 +152,8 @@ def home():
             return redirect(request.url)
         file_type = request.form["file_type"]
         
-        options = { key: request.form[key] for key in IMAGE_OPTIONS.keys() }
+        options_dict = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
+        options = { key: request.form[key] for key in options_dict.keys() }
 
         if file_type not in ALLOWED_EXTENSIONS.keys():
             flash("No file type selected")

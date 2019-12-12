@@ -16,7 +16,7 @@ from .video_utils import (
 )
 
 
-def glitch_image(input_path: str, output_path: str, options: object) -> None:
+def glitch_image(input_path: str, output_path: str, options: dict) -> None:
     """ swaps some random blocks, random moves channels and adds salt and pepper noise to the image
     """
     image = imageio.imread(input_path)
@@ -57,10 +57,11 @@ def glitch_image(input_path: str, output_path: str, options: object) -> None:
     imageio.imwrite(output_path, image)
 
 
-def glitch_video(input_path: str, output_path: str) -> None:
+def glitch_video(input_path: str, output_path: str, options: dict) -> None:
     """ glitches a video. 
-    a collection of glitches are applied to chunks of the video. Each glitch have a random duration
-    betwee 1 and 15 consecutive frames. Avalaible glitches are:
+    Different types of glitches are applied to chunks of the video. Each glitch
+    has a random duration between `min_effect_length` and `max_effect_length`
+    consecutive frames. Avalaible glitches are:
     * move channels in random direction
     * move channels in constant direction
     * swap random blocks of the video, same blocks every time
@@ -70,11 +71,16 @@ def glitch_video(input_path: str, output_path: str) -> None:
     width, height = get_video_size(input_path)
     reader = start_ffmpeg_reader(input_path)
     writer = start_ffmpeg_writer(output_path, width, height)
+
+    min_effect_length = int(options['min_effect_length']) or 1
+    max_effect_length = int(options['max_effect_length']) or 15
+    block_size        = float(options['block_size'])      or 0.5
+    block_effect      = float(options['block_effect'])    or 0.5
+    
     # each glitch (effect) happens during some frames
-    min_effect_length = 1
-    max_effect_length = 15
     remaining_frames_effect = 0
     frame_idx = 0
+    
     while True:
         if frame_idx % 100 == 0:
             print(f"frame {frame_idx}")
@@ -104,19 +110,12 @@ def glitch_video(input_path: str, output_path: str) -> None:
                 remaining_frames_effect = 5
             # 2 -> swap blocks static
             if roll in [2]:
-                num_blocks = np.random.randint(1, 4)
-                block_sizes = np.random.randint(100, 600, (num_blocks, 2))
-                block_channels = np.random.randint(0, 3, (num_blocks,))
-                block_xs, block_ys = [], []
-                for b in range(num_blocks):
-                    block_xs.append(
-                        np.random.randint(0, height - block_sizes[b, 0], (2,))
-                    )
-                    block_ys.append(
-                        np.random.randint(0, width - block_sizes[b, 1], (2,))
-                    )
-                block_xs = np.asarray(block_xs)
-                block_ys = np.asarray(block_ys)
+                effect = swap_blocks_static(width, height, {
+                    'min_blocks':      int(block_effect * 2),
+                    'max_blocks':      int(block_effect * 8),
+                    'min_block_size':  int(block_size   * 200),
+                    'max_block_size':  int(block_size   * 1200)
+                })
 
             # 3 -> swap blocks random
             # 5 -> channels and blocks
@@ -139,20 +138,17 @@ def glitch_video(input_path: str, output_path: str) -> None:
             frame = move_channels_random(frame, -15, 15)
 
         if roll in [3, 5]:
-            num_blocks = np.random.randint(1, 5)
-            block_sizes = np.random.randint(50, 400, (num_blocks, 2))
-            block_channels = np.random.randint(0, 3, (num_blocks,))
-            block_xs, block_ys = [], []
-            for b in range(num_blocks):
-                block_xs.append(np.random.randint(0, height - block_sizes[b, 0], (2,)))
-                block_ys.append(np.random.randint(0, width - block_sizes[b, 1], (2,)))
-            block_xs = np.asarray(block_xs)
-            block_ys = np.asarray(block_ys)
+            effect = swap_blocks_static(width, height, {
+                'min_blocks':      int(block_effect * 2),
+                'max_blocks':      int(block_effect * 10),
+                'min_block_size':  int(block_size   * 100),
+                'max_block_size':  int(block_size   * 800)
+            })
 
         if roll in [2, 3, 5]:
-            for b in range(num_blocks):
-                origin_x, dst_x = block_xs[b]
-                origin_y, dst_y = block_ys[b]
+            for b in range(effect['num_blocks']):
+                origin_x, dst_x = effect['block_xs'][b]
+                origin_y, dst_y = effect['block_ys'][b]
                 swap_block(
                     frame_orig,
                     frame,
@@ -160,9 +156,9 @@ def glitch_video(input_path: str, output_path: str) -> None:
                     origin_y,
                     dst_x,
                     dst_y,
-                    block_sizes[b][0],
-                    block_sizes[b][1],
-                    block_channels[b],
+                    effect['block_sizes'][b][0],
+                    effect['block_sizes'][b][1],
+                    effect['block_channels'][b],
                 )
 
         if roll_noise in [0, 1]:
@@ -175,3 +171,40 @@ def glitch_video(input_path: str, output_path: str) -> None:
     reader.wait()
     writer.stdin.close()
     writer.wait()
+
+
+def swap_blocks_static(width: int, height: int, options: dict) -> tuple:
+    max_size = min(height, width)
+
+    min_blocks = int(options['min_blocks']) or 1
+    max_blocks = int(options['max_blocks']) or 4
+    
+    min_block_size  = int(options['min_block_size']) or 1
+    max_block_size  = int(options['max_block_size']) or max_size
+    
+    num_blocks  = np.random.randint(min_blocks, max_blocks)
+    
+    block_sizes = np.random.randint(
+        max(1, min_block_size),
+        min(max_size, max_block_size),
+        (num_blocks, 2))
+    
+    block_channels = np.random.randint(0, 3, (num_blocks,))
+
+    block_xs, block_ys = [], []
+
+    for b in range(num_blocks):
+        block_xs.append(
+            np.random.randint(0, height - block_sizes[b][0], (2,))
+        )
+        block_ys.append(
+            np.random.randint(0, width  - block_sizes[b][1], (2,))
+        )
+
+    return {
+        'num_blocks':     num_blocks,
+        'block_xs':       np.asarray(block_xs),
+        'block_ys':       np.asarray(block_ys),
+        'block_sizes':    block_sizes,
+        'block_channels': block_channels
+    }
