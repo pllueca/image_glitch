@@ -56,6 +56,10 @@ def hash_file(filename: str) -> str:
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
 def glitch(gid):
+    options = {
+        'intensity': request.args.get('intensity')
+    }
+
     filepath = signer.loads(gid)
     file_type = get_file_type(filepath)
     extension = file_extension(filepath)
@@ -83,7 +87,7 @@ def glitch(gid):
     glitched_filepath = osp.join(STATIC_FOLDER, file_type, file_hash, glitched_fname)
 
     if file_type == "image":
-        glitch_image(filepath, glitched_filepath)
+        glitch_image(filepath, glitched_filepath, options)
     elif file_type == "video":
         glitch_video(filepath, glitched_filepath)
 
@@ -102,6 +106,11 @@ def home():
             flash("No selected file")
             return redirect(request.url)
         file_type = request.form["file_type"]
+        
+        options = {
+            'intensity': request.form["intensity"] 
+        }
+        
         if file_type not in ALLOWED_EXTENSIONS.keys():
             flash("No file type selected")
             return redirect(request.url)
@@ -115,10 +124,10 @@ def home():
             return redirect(request.url)
 
         gid = signer.dumps(filepath)
-        return redirect(url_for("glitch", gid=gid))
+        return redirect(url_for("glitch", gid=gid, **options))
 
     else:  # Method GET
-        return render_template("home.html")
+        return render_template("home.html", allowed_extensions=ALLOWED_EXTENSIONS)
 
 
 @app.route("/health_check", methods=["GET"])

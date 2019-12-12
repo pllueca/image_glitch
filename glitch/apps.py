@@ -16,7 +16,7 @@ from .video_utils import (
 )
 
 
-def glitch_image(input_path: str, output_path: str) -> None:
+def glitch_image(input_path: str, output_path: str, options: object) -> None:
     """ swaps some random blocks, random moves channels and adds salt and pepper noise to the image
     """
     image = imageio.imread(input_path)
@@ -31,7 +31,8 @@ def glitch_image(input_path: str, output_path: str) -> None:
 
     image = move_channels_random(image, -10, 10)
 
-    image = salt_and_pepper(image, 0.75, 0.95)
+    intensity = float(options['intensity'])
+    image = salt_and_pepper(image, intensity, 0.95 * intensity)
 
     imageio.imwrite(output_path, image)
 
