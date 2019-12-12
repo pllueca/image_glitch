@@ -23,8 +23,8 @@ def glitch_image(input_path: str, output_path: str, options: dict) -> None:
 
     block_movement    = float(options['block_movement'])
     block_size        = float(options['block_size'])
-    intensity_noise   = float(options['intensity_noise'])
-    intensity_fractal = float(options['intensity_fractal'])
+    noise_intensity   = float(options['noise_intensity'])
+    noise_amount = float(options['noise_amount'])
     channels_movement = float(options['channels_movement'])
     
     max_blocksize = {
@@ -52,7 +52,7 @@ def glitch_image(input_path: str, output_path: str, options: dict) -> None:
         delta = int(channels_movement * 20)
         image = move_channels_random(image, -delta, delta)
 
-    image = salt_and_pepper(image, intensity_noise, intensity_fractal)
+    image = salt_and_pepper(image, noise_intensity, noise_amount)
 
     imageio.imwrite(output_path, image)
 

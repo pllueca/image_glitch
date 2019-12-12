@@ -19,12 +19,12 @@ STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
 IMAGE_OPTIONS = {
-    "intensity_noise":   {
+    "noise_intensity":   {
         "label": "Noise Intensity",
         "min": 0, "max": 1, "step": 0.01, "default": 0.5
     },
-    "intensity_fractal": {
-        "label": "Fractal Intensity",
+    "noise_amount": {
+        "label": "Noise Amount",
         "min": 0, "max": 1, "step": 0.01, "default": 0.5
     },
     "block_movement":    {
