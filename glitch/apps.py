@@ -21,18 +21,25 @@ def glitch_image(input_path: str, output_path: str, options: object) -> None:
     """
     image = imageio.imread(input_path)
 
+    channels_movement = float(options['channels']['movement'])
+    block_movement    = float(options['blocks']['movement'])
+    block_size        = float(options['blocks']['size'])
+    intensity_noise   = float(options['intensity']['noise'])
+    intensity_fractal = float(options['intensity']['fractal'])
+    
+    # Move wide blocks
     image = move_random_blocks(
-        image, max_blocksize=(150, 400), num_blocks=3, per_channel=True
+        image, max_blocksize=(300 * block_size, 800 * block_size), num_blocks=block_movement * 8, per_channel=True
     )
 
+    # Move narrow blocks
     image = move_random_blocks(
-        image, max_blocksize=(200, 50), num_blocks=5, per_channel=True
+        image, max_blocksize=(400 * block_size, 100 * block_size), num_blocks=block_movement * 13, per_channel=True
     )
 
-    image = move_channels_random(image, -10, 10)
+    image = move_channels_random(image, -20 * channels_movement, 20 * channels_movement)
 
-    intensity = float(options['intensity'])
-    image = salt_and_pepper(image, intensity, 0.95 * intensity)
+    image = salt_and_pepper(image, intensity_noise, intensity_fractal)
 
     imageio.imwrite(output_path, image)
 
