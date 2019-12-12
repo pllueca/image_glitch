@@ -81,7 +81,13 @@ def move_random_blocks(
     """ swap `num_blocks` of size `blocksize` in arr """
     res = arr.copy()
     w, h, n_channels = arr.shape
+
     max_block_size_x, max_block_size_y = max_blocksize
+
+    # Prevent block size being bigger than the image itself
+    max_block_size_x = min(w / 2, max_block_size_x)
+    max_block_size_y = min(h / 2, max_block_size_y)
+
     for _ in range(num_blocks):
         block_size_x = np.random.randint(1, max_block_size_x)
         block_size_y = np.random.randint(1, max_block_size_y)
