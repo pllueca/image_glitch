@@ -18,6 +18,17 @@ UPLOAD_FOLDER = "uploads"
 STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
+IMAGE_OPTIONS = {
+    "intensity_noise":   "Noise Intensity",
+    "intensity_fractal": "Fractal Intensity",
+    "block_movement":    "Block Movement",
+    "block_size":        "Block Size",
+    "channels_movement": "Channels Movement"
+}
+VIDEO_OPTIONS = {
+    
+}
+
 app = Flask(__name__, static_folder=STATIC_FOLDER)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = "1234asdf"
@@ -53,12 +64,12 @@ def hash_file(filename: str) -> str:
     with open(filename, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+def get_options(request) -> object:
+    return { key: request.args.get(key) for key in IMAGE_OPTIONS.keys() }
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
 def glitch(gid):
-    options = {
-        'intensity': request.args.get('intensity')
-    }
+    options = get_options(request)
 
     filepath = signer.loads(gid)
     file_type = get_file_type(filepath)
@@ -107,10 +118,8 @@ def home():
             return redirect(request.url)
         file_type = request.form["file_type"]
         
-        options = {
-            'intensity': request.form["intensity"] 
-        }
-        
+        options = { key: request.form[key] for key in IMAGE_OPTIONS.keys() }
+
         if file_type not in ALLOWED_EXTENSIONS.keys():
             flash("No file type selected")
             return redirect(request.url)
@@ -127,7 +136,10 @@ def home():
         return redirect(url_for("glitch", gid=gid, **options))
 
     else:  # Method GET
-        return render_template("home.html", allowed_extensions=ALLOWED_EXTENSIONS)
+        return render_template("home.html",
+                                    allowed_extensions=ALLOWED_EXTENSIONS,
+                                    image_options=IMAGE_OPTIONS,
+                                    video_options=VIDEO_OPTIONS)
 
 
 @app.route("/health_check", methods=["GET"])

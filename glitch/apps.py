@@ -21,23 +21,36 @@ def glitch_image(input_path: str, output_path: str, options: object) -> None:
     """
     image = imageio.imread(input_path)
 
-    channels_movement = float(options['channels']['movement'])
-    block_movement    = float(options['blocks']['movement'])
-    block_size        = float(options['blocks']['size'])
-    intensity_noise   = float(options['intensity']['noise'])
-    intensity_fractal = float(options['intensity']['fractal'])
+    block_movement    = float(options['block_movement'])
+    block_size        = float(options['block_size'])
+    intensity_noise   = float(options['intensity_noise'])
+    intensity_fractal = float(options['intensity_fractal'])
+    channels_movement = float(options['channels_movement'])
     
+    max_blocksize = {
+        'tall': (int(block_size * 300), int(800 * block_size)),
+        'wide': (int(block_size * 400), int(100 * block_size))
+    }
+
+    channels_movement_range = int(channels_movement * 20)
+
+    # Move tall blocks
+    image = move_random_blocks(
+        image,
+        max_blocksize=max_blocksize['tall'],
+        num_blocks=int(block_movement * 8),
+        per_channel=True
+    )
+
     # Move wide blocks
     image = move_random_blocks(
-        image, max_blocksize=(300 * block_size, 800 * block_size), num_blocks=block_movement * 8, per_channel=True
+        image,
+        max_blocksize=max_blocksize['wide'],
+        num_blocks=int(block_movement * 13),
+        per_channel=True
     )
-
-    # Move narrow blocks
-    image = move_random_blocks(
-        image, max_blocksize=(400 * block_size, 100 * block_size), num_blocks=block_movement * 13, per_channel=True
-    )
-
-    image = move_channels_random(image, -20 * channels_movement, 20 * channels_movement)
+    
+    image = move_channels_random(image, -channels_movement_range, channels_movement_range)
 
     image = salt_and_pepper(image, intensity_noise, intensity_fractal)
 
