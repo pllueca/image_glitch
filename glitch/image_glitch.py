@@ -85,8 +85,8 @@ def move_random_blocks(
     max_block_size_x, max_block_size_y = max_blocksize
 
     # Prevent block size being bigger than the image itself
-    max_block_size_x = max(w, max_block_size_x)
-    max_block_size_y = max(h, max_block_size_y)
+    max_block_size_x = min(w, max_block_size_x)
+    max_block_size_y = min(h, max_block_size_y)
 
     for _ in range(num_blocks):
         block_size_x = np.random.randint(1, max_block_size_x)
