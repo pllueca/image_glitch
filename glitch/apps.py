@@ -32,8 +32,6 @@ def glitch_image(input_path: str, output_path: str, options: object) -> None:
         'wide': (int(block_size * 400), int(100 * block_size))
     }
 
-    channels_movement_range = int(channels_movement * 20)
-
     # Move tall blocks
     image = move_random_blocks(
         image,
@@ -50,7 +48,9 @@ def glitch_image(input_path: str, output_path: str, options: object) -> None:
         per_channel=True
     )
     
-    image = move_channels_random(image, -channels_movement_range, channels_movement_range)
+    if channels_movement > 0:
+        delta = int(channels_movement * 20)
+        image = move_channels_random(image, -delta, delta)
 
     image = salt_and_pepper(image, intensity_noise, intensity_fractal)
 
