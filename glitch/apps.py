@@ -1,7 +1,13 @@
 import imageio
 import numpy as np
 
-from .image_glitch import move_random_blocks, move_channels_random, salt_and_pepper
+from .image_glitch import (
+    move_random_blocks,
+    move_channels_random,
+    salt_and_pepper,
+    swap_block,
+    move_channel,
+)
 from .video_utils import (
     get_video_size,
     start_ffmpeg_reader,
@@ -25,7 +31,7 @@ def glitch_image(input_path: str, output_path: str) -> None:
 
     image = move_channels_random(image, -10, 10)
 
-    image = salt_and_pepper(image, 0.6, 0.02)
+    image = salt_and_pepper(image, 0.75, 0.95)
 
     imageio.imwrite(output_path, image)
 
@@ -47,6 +53,7 @@ def glitch_video(input_path: str, output_path: str) -> None:
     min_effect_length = 1
     max_effect_length = 15
     remaining_frames_effect = 0
+    frame_idx = 0
     while True:
         if frame_idx % 100 == 0:
             print(f"frame {frame_idx}")
@@ -138,7 +145,7 @@ def glitch_video(input_path: str, output_path: str) -> None:
                 )
 
         if roll_noise in [0, 1]:
-            frame = salt_and_pepper(frame, 0.5, 0.02)
+            frame = salt_and_pepper(frame, 0.75, 0.95)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1

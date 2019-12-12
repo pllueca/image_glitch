@@ -150,26 +150,36 @@ def flip_block(
 
 
 def salt_and_pepper(
-    arr: NumpyArray, intensity: float = 0.6, noise_frac: float = 0.02
+    arr: NumpyArray, intensity: float = 1.0, noise_frac: float = 0.02
 ) -> NumpyArray:
-    """ replaces random pixels with 255,255,255 or 0,0,0"""
+    """ replaces random pixels with 255,255,255 or 0,0,0
+    noise fraction is the fracion of pixels with noise applied"""
     if not 0 <= intensity <= 1.0:
-        raise ValueError("intensity must be between 0 and 10!")
+        raise ValueError("intensity must be between 0 and 1.0!")
+    if not 0 <= noise_frac <= 1.0:
+        raise ValueError("noise_frac must be between 0 and 1.0!")
     w, h, c = arr.shape
 
-    if c == 3:
-        white = 255, 255, 255
-        black = 0, 0, 0
-    elif c == 4:
-        white = 255, 255, 255, 255
-        black = 0, 0, 0, 255
+    noise_mask = np.random.random((w, h))
+    noise_mask[noise_mask < noise_frac] = 0
+    noise_mask[noise_mask >= noise_frac] = 1
 
-    # 2 of eac noise_frac pix is noisy
-    prob_noise = int(1 / noise_frac)
-    noise_mask = np.random.randint(0, prob_noise, (w, h))
-    noise_rgb = arr.copy()
+    # idx of the pixels that will be replaced with noise
+    noise_idxs = np.where(noise_mask == 1)
 
-    noise_rgb[np.where(noise_mask == 0)] = black
-    noise_rgb[np.where(noise_mask == 1)] = white
+    noise_rgb = np.random.randint(0, 256, (w, h), np.uint8)
+    noise_rgb[noise_rgb > 128] = 255
+    noise_rgb[noise_rgb <= 128] = 0
+    noise_rgb = np.dstack([noise_rgb,] * c)  # make it accually rgb(a)
+    if c == 4:
+        # keep original alpha
+        noise_rgb[..., -1] = arr[..., -1]
 
-    return (arr.copy() * intensity + noise_rgb * (1 - intensity)).astype(np.uint8)
+    arr = arr.copy()
+    if intensity == 1.0:
+        arr[noise_idxs] = noise_rgb[noise_idxs]
+    else:
+        arr[noise_idxs] = noise_rgb[noise_idxs] * intensity + arr[noise_idxs] * (
+            1 - intensity
+        )
+    return arr
