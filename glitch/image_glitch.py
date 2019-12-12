@@ -1,8 +1,12 @@
-import imageio
+""" Image glitchig functions """
+
+from typing import Optional, Tuple
 import numpy as np
 
+NumpyArray = np.ndarray  # for typing
 
-def move_channel(arr, channel, deltax, deltay):
+
+def move_channel(arr: NumpyArray, channel: int, deltax: int, deltay: int) -> NumpyArray:
     """ move the given channel in the direction (deltax, deltay) """
     w, h, c = arr.shape
     if channel >= c:
@@ -21,7 +25,9 @@ def move_channel(arr, channel, deltax, deltay):
     return arr
 
 
-def move_channels_random(arr, min_delta=-50, max_delta=50):
+def move_channels_random(
+    arr: NumpyArray, min_delta: int = -50, max_delta: int = 50
+) -> NumpyArray:
     """ move each channel a random amount between -val and val"""
     res = arr.copy()
     for channel in range(arr.shape[-1]):
@@ -31,16 +37,16 @@ def move_channels_random(arr, min_delta=-50, max_delta=50):
 
 
 def swap_block(
-    origin_arr,
-    dst_arr,
-    origin_block_x,
-    origin_block_y,
-    dst_block_x,
-    dst_block_y,
-    block_width,
-    block_height,
-    channel=None,
-):
+    origin_arr: NumpyArray,
+    dst_arr: NumpyArray,
+    origin_block_x: int,
+    origin_block_y: int,
+    dst_block_x: int,
+    dst_block_y: int,
+    block_width: int,
+    block_height: int,
+    channel: Optional[int] = None,
+) -> NumpyArray:
     """ swap the contents of the blocks. If channel is None, swap all the channels """
     channel = channel or ...
     dst_arr[
@@ -66,7 +72,12 @@ def swap_block(
     return dst_arr
 
 
-def move_random_blocks(arr, max_blocksize=(5, 5), num_blocks=5, per_channel=False):
+def move_random_blocks(
+    arr: NumpyArray,
+    max_blocksize: Tuple[int, int] = (5, 5),
+    num_blocks: int = 5,
+    per_channel: bool = False,
+) -> NumpyArray:
     """ swap `num_blocks` of size `blocksize` in arr """
     res = arr.copy()
     w, h, n_channels = arr.shape
@@ -100,7 +111,11 @@ def move_random_blocks(arr, max_blocksize=(5, 5), num_blocks=5, per_channel=Fals
     return res
 
 
-def flip_block(arr, blocksize, per_channel):
+def flip_block(
+    arr: NumpyArray, blocksize: Tuple[int, int], per_channel: bool
+) -> NumpyArray:
+    """ Flips vertically and horizontally the content of a random block of `blocksize` size.
+  if `per_channel` a random block is flipped in each channel """
     res = arr.copy()
     w, h, n_channels = arr.shape
     block_size_x, block_size_y = blocksize
@@ -134,9 +149,10 @@ def flip_block(arr, blocksize, per_channel):
     return res
 
 
-def salt_and_pepper(arr, intensity=0.6, noise_frac=0.02):
-    """ replaces random pixels with 255,255,255 or 0,0,0
-    intensity from 0 to 10"""
+def salt_and_pepper(
+    arr: NumpyArray, intensity: float = 0.6, noise_frac: float = 0.02
+) -> NumpyArray:
+    """ replaces random pixels with 255,255,255 or 0,0,0"""
     if not 0 <= intensity <= 1.0:
         raise ValueError("intensity must be between 0 and 10!")
     w, h, c = arr.shape
