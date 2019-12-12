@@ -4,3 +4,5 @@
 __pycache__/
 glitch/__pycache__/
 tags
+static/*/*
+uploads/*/*
