@@ -8,5 +8,4 @@ WORKDIR /opt/glitch
 COPY . .
 
 ENV FLASK_APP=glitch_app.py
-EXPOSE 5000
-CMD flask run
+CMD ["python", "glitch_app.py"]

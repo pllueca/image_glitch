@@ -5,7 +5,7 @@ import glob
 import shutil
 import hashlib
 
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeSerializer
 import requests
@@ -121,5 +121,10 @@ def home():
         return render_template("home.html")
 
 
+@app.route("/health_check", methods=["GET"])
+def health_check():
+    return jsonify({"state": "running"})
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)

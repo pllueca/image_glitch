@@ -1,0 +1,13 @@
+.vscode
+.git
+.github
+.DS_Store
+.ipynb_checkpoints/
+.vscode/
+__pycache__/
+glitch/__pycache__/
+
+tags
+static
+uploads
+examples

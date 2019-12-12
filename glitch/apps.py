@@ -13,9 +13,13 @@ from .video_utils import (
 def glitch_image(input_path, output_path):
     image = imageio.imread(input_path)
 
-    image = move_random_blocks(image, max_blocksize=(150, 400), num_blocks=3, per_channel=True)
+    image = move_random_blocks(
+        image, max_blocksize=(150, 400), num_blocks=3, per_channel=True
+    )
 
-    image = move_random_blocks(image, max_blocksize=(200, 50), num_blocks=5, per_channel=True)
+    image = move_random_blocks(
+        image, max_blocksize=(200, 50), num_blocks=5, per_channel=True
+    )
 
     image = move_channels_random(image, -10, 10)
 

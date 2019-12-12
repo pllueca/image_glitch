@@ -1,11 +1,10 @@
 # Glitch
 
 Python app to apply [glitch art](https://en.wikipedia.org/wiki/Glitch_art) style to images and videos.
-to run the app locally run:
 
 ```
-pip install -r requirements
-FLASK_APP=glitch_app.py flask run
+docker build -t glitch .
+docker run -p 5000:5000 glitch
 ```
 
 and go to `localhost:5000`.
