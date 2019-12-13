@@ -21,42 +21,51 @@ ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "
 IMAGE_OPTIONS = {
     "noise_intensity":   {
         "label": "Noise Intensity",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     },
     "noise_amount": {
         "label": "Noise Amount",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     },
     "block_movement":    {
         "label": "Block Movement",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     },
     "block_size":        {
         "label": "Block Size",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     },
     "channels_movement": {
         "label": "Channels Movement",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     }
 }
 
 VIDEO_OPTIONS = {
     "min_effect_length": {
         "label": "Minimum effect duration (in frames)",
-        "min": 1, "max": 10, "step": 1, "default": 1
+        "min": 1, "max": 10, "step": 1, "default": 1,
+        "type": int
     },
     "max_effect_length": {
         "label": "Maximum effect duration (in frames)",
-        "min": 5, "max": 30, "step": 1, "default": 15
+        "min": 5, "max": 30, "step": 1, "default": 15,
+        "type": int
     },
     "block_size": {
         "label": "Block Size",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     },
     "block_effect": {
         "label": "Block Effect Amount",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
     }
 }
 
@@ -97,7 +106,7 @@ def hash_file(filename: str) -> str:
 
 def get_options(file_type, request) -> object:
     opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS  
-    return { key: request.args.get(key) for key in opt.keys() }
+    return { key: opt[key]['type'](request.args.get(key)) for key in opt.keys() }
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
 def glitch(gid):
@@ -132,9 +141,9 @@ def glitch(gid):
     glitched_filepath = osp.join(STATIC_FOLDER, file_type, file_hash, glitched_fname)
 
     if file_type == "image":
-        glitch_image(filepath, glitched_filepath, options)
+        glitch_image(filepath, glitched_filepath, **options)
     elif file_type == "video":
-        glitch_video(filepath, glitched_filepath, options)
+        glitch_video(filepath, glitched_filepath, **options)
 
     return render_template(
         "glitch.html",

@@ -16,17 +16,13 @@ from .video_utils import (
 )
 
 
-def glitch_image(input_path: str, output_path: str, options: dict) -> None:
+def glitch_image(input_path: str, output_path: str,
+            block_movement=0.5, block_size=0.5, noise_intensity=0.5, 
+            noise_amount=0.5, channels_movement=0.5) -> None:
     """ swaps some random blocks, random moves channels and adds salt and pepper noise to the image
     """
     image = imageio.imread(input_path)
 
-    block_movement    = float(options['block_movement'])
-    block_size        = float(options['block_size'])
-    noise_intensity   = float(options['noise_intensity'])
-    noise_amount      = float(options['noise_amount'])
-    channels_movement = float(options['channels_movement'])
-    
     max_blocksize = {
         'tall': (int(block_size * 300), int(800 * block_size)),
         'wide': (int(block_size * 400), int(100 * block_size))
@@ -57,7 +53,9 @@ def glitch_image(input_path: str, output_path: str, options: dict) -> None:
     imageio.imwrite(output_path, image)
 
 
-def glitch_video(input_path: str, output_path: str, options: dict) -> None:
+def glitch_video(input_path: str, output_path: str,
+            min_effect_length=1, max_effect_length=15,
+            block_size=0.5, block_effect=0.5) -> None:
     """ glitches a video. 
     Different types of glitches are applied to chunks of the video. Each glitch
     has a random duration between `min_effect_length` and `max_effect_length`
@@ -72,11 +70,6 @@ def glitch_video(input_path: str, output_path: str, options: dict) -> None:
     reader = start_ffmpeg_reader(input_path)
     writer = start_ffmpeg_writer(output_path, width, height)
 
-    min_effect_length = int(options['min_effect_length']) or 1
-    max_effect_length = int(options['max_effect_length']) or 15
-    block_size        = float(options['block_size'])      or 0.5
-    block_effect      = float(options['block_effect'])    or 0.5
-    
     # each glitch (effect) happens during some frames
     remaining_frames_effect = 0
     frame_idx = 0
