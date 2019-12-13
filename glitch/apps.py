@@ -1,5 +1,6 @@
 import imageio
 import numpy as np
+from random import choice
 
 from .image_glitch import (
     move_random_blocks,
@@ -15,40 +16,48 @@ from .video_utils import (
     read_frame,
 )
 
+block_aspects = [
+    [1, 1],
+    [1, 4],
+    [4, 1]
+]
 
 def glitch_image(input_path: str, output_path: str,
-            block_movement=0.5, block_size=0.5, noise_intensity=0.5, 
-            noise_amount=0.5, channels_movement=0.5) -> None:
+            block_movement: float = 0.5, block_size: float = 0.5, block_count: int = 15,
+            noise_intensity: float = 0.5, noise_amount: float = 0.5,
+            channels_movement: float = 0.5) -> None:
     """ swaps some random blocks, random moves channels and adds salt and pepper noise to the image
     """
     image = imageio.imread(input_path)
 
-    max_blocksize = {
-        'tall': (int(block_size * 300), int(800 * block_size)),
-        'wide': (int(block_size * 400), int(100 * block_size))
-    }
+    if block_count > 0 and block_size > 0 and block_movement > 0:
+        size  = int(min(image.shape[0], image.shape[1]) / 2 * block_size)
 
-    # Move tall blocks
-    image = move_random_blocks(
-        image,
-        max_blocksize=max_blocksize['tall'],
-        num_blocks=int(block_movement * 8),
-        per_channel=True
-    )
+        blocks_moved = 0
 
-    # Move wide blocks
-    image = move_random_blocks(
-        image,
-        max_blocksize=max_blocksize['wide'],
-        num_blocks=int(block_movement * 13),
-        per_channel=True
-    )
+        while blocks_moved < block_count:
+            remaining_blocks = block_count - blocks_moved
+            
+            # Move blocks with given aspect ratio
+            num_blocks    = np.random.randint(1, remaining_blocks) if remaining_blocks > 1 else 1
+
+            blocks_moved += num_blocks
+
+            aspect = choice(block_aspects)
+            max_blocksize = [x * size for x in aspect]
+            image = move_random_blocks(
+                image,
+                max_blocksize=max_blocksize,
+                num_blocks=num_blocks,
+                per_channel=True
+            )
     
     if channels_movement > 0:
         delta = int(channels_movement * 20)
         image = move_channels_random(image, -delta, delta)
 
-    image = salt_and_pepper(image, noise_intensity, 1 - noise_amount)
+    if noise_amount > 0 and noise_intensity > 0:
+        image = salt_and_pepper(image, noise_intensity, 1 - noise_amount)
 
     imageio.imwrite(output_path, image)
 
@@ -166,15 +175,10 @@ def glitch_video(input_path: str, output_path: str,
     writer.wait()
 
 
-def swap_blocks_static(width: int, height: int, options: dict) -> tuple:
-    max_size = min(height, width)
-
-    min_blocks = int(options['min_blocks']) or 1
-    max_blocks = int(options['max_blocks']) or 4
+def swap_blocks_static(width: int, height: int, min_blocks=1, max_blocks=4,
+                    min_block_size=1, max_block_size=None) -> tuple:
     
-    min_block_size  = int(options['min_block_size']) or 1
-    max_block_size  = int(options['max_block_size']) or max_size
-    
+    max_size = max_block_size or min(height, width)
     num_blocks  = np.random.randint(min_blocks, max_blocks)
     
     block_sizes = np.random.randint(

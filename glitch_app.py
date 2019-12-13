@@ -39,6 +39,11 @@ IMAGE_OPTIONS = {
         "min": 0, "max": 1, "step": 0.01, "default": 0.5,
         "type": float
     },
+    "block_count":        {
+        "label": "Block Count",
+        "min": 0, "max": 100, "step": 1, "default": 15,
+        "type": int
+    },
     "channels_movement": {
         "label": "Channels Movement",
         "min": 0, "max": 1, "step": 0.01, "default": 0.5,
