@@ -112,12 +112,12 @@ def glitch_video(input_path: str, output_path: str,
                 remaining_frames_effect = 5
             # 2 -> swap blocks static
             if roll in [2]:
-                effect = swap_blocks_static(width, height, {
-                    'min_blocks':      int(block_effect * 2),
-                    'max_blocks':      int(block_effect * 8),
-                    'min_block_size':  int(block_size   * 200),
-                    'max_block_size':  int(block_size   * 1200)
-                })
+                effect = swap_blocks_static(width, height,
+                    min_blocks=int(block_effect * 2),
+                    max_blocks =      int(block_effect * 8),
+                    min_block_size =  int(block_size   * 200),
+                    max_block_size =  int(block_size   * 1200)
+                )
 
             # 3 -> swap blocks random
             # 5 -> channels and blocks
@@ -140,12 +140,12 @@ def glitch_video(input_path: str, output_path: str,
             frame = move_channels_random(frame, -15, 15)
 
         if roll in [3, 5]:
-            effect = swap_blocks_static(width, height, {
-                'min_blocks':      int(block_effect * 2),
-                'max_blocks':      int(block_effect * 10),
-                'min_block_size':  int(block_size   * 100),
-                'max_block_size':  int(block_size   * 800)
-            })
+            effect = swap_blocks_static(width, height,
+                min_blocks =      int(block_effect * 2),
+                max_blocks =      int(block_effect * 10),
+                min_block_size =  int(block_size   * 100),
+                max_block_size =  int(block_size   * 800)
+            )
 
         if roll in [2, 3, 5]:
             for b in range(effect['num_blocks']):
