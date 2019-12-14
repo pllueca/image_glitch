@@ -100,7 +100,7 @@ def hash_file(filename: str) -> str:
         return hashlib.md5(f.read()).hexdigest()
 
 def get_options(file_type, request) -> object:
-    opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS  
+    opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
     return { key: opt[key]['type'](request.args.get(key)) for key in opt.keys() }
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
@@ -157,7 +157,7 @@ def home():
         file_type = request.form["file_type"]
         
         options_dict = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
-        options = { key: request.form[key] for key in options_dict.keys() }
+        options = { key: request.form[f"{file_type}_{key}"] for key in options_dict.keys() }
 
         if file_type not in ALLOWED_EXTENSIONS.keys():
             flash("No file type selected")

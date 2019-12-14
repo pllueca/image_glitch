@@ -151,7 +151,7 @@ def glitch_video(input_path: str, output_path: str,
             effect = apply_effect_config(width, height, block_count, block_size)
             frame = apply_block_swap(frame_orig, frame, effect)
 
-        if roll_noise in [0, 1] and noise_intensity and noise_amount:
+        if noise_intensity and noise_amount and roll_noise in [0, 1]:
             frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())

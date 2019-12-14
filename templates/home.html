@@ -46,9 +46,9 @@
 
                 {% for name, options in image_options.items() %}
                 <div class="form-group row">
-                  <label class="col-sm-6 col-form-label" for="{{name}}">{{options['label']}}</label>
+                  <label class="col-sm-6 col-form-label" for="image_{{name}}">{{options['label']}}</label>
                     <div class="col-sm-6">
-                      <input class="form-control" type="number" name="{{name}}" value="{{options['default']}}"
+                      <input class="form-control" type="number" name="image_{{name}}" value="{{options['default']}}"
                              step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
                     </div>  
                   </div>
@@ -62,9 +62,9 @@
 
                 {% for name, options in video_options.items() %}
                   <div class="form-group row">
-                    <label class="col-sm-6 col-form-label" for="{{name}}">{{options['label']}}</label>
+                    <label class="col-sm-6 col-form-label" for="video_{{name}}">{{options['label']}}</label>
                     <div class="col-sm-6">
-                      <input class="form-control" type="number" name="{{name}}" value="{{options['default']}}"
+                      <input class="form-control" type="number" name="video_{{name}}" value="{{options['default']}}"
                              step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
                     </div>  
                   </div>
