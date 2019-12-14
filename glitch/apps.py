@@ -23,14 +23,14 @@ ASPECT_RATIOS = [
 ]
 
 def glitch_image(input_path: str, output_path: str,
-            block_movement: float = 0.5, block_size: float = 0.5, block_count: int = 15,
+            float = 0.5, block_size: float = 0.5, block_count: int = 15,
             noise_intensity: float = 0.5, noise_amount: float = 0.5,
             channels_movement: float = 0.5) -> None:
     """ swaps some random blocks, random moves channels and adds salt and pepper noise to the image
     """
     image = imageio.imread(input_path)
 
-    if block_count and block_size and block_movement:
+    if block_count and block_size:
         size  = int(min(image.shape[0], image.shape[1]) / 2 * block_size)
 
         blocks_moved = 0
@@ -63,8 +63,10 @@ def glitch_image(input_path: str, output_path: str,
 
 
 def glitch_video(input_path: str, output_path: str,
-            min_effect_length=1, max_effect_length=15,
-            block_size=0.5, block_effect=0.5) -> None:
+            min_effect_length: int = 1, max_effect_length: int = 15,
+            noise_intensity: float = 0.5, noise_amount: float = 0.5,
+            block_size: float = 0.5, block_count: int = 15,
+            channels_movement: float = 0.5) -> None:
     """ glitches a video. 
     Different types of glitches are applied to chunks of the video. Each glitch
     has a random duration between `min_effect_length` and `max_effect_length`
@@ -113,10 +115,10 @@ def glitch_video(input_path: str, output_path: str,
             # 2 -> swap blocks static
             if roll in [2]:
                 effect = configure_effect(width, height,
-                    min_blocks=int(block_effect * 2),
-                    max_blocks =      int(block_effect * 8),
-                    min_block_size =  int(block_size   * 200),
-                    max_block_size =  int(block_size   * 1200)
+                    min_blocks     = 1,
+                    max_blocks     = block_count,
+                    min_block_size = int(block_size * 200),
+                    max_block_size = int(block_size * 1200)
                 )
 
             # 3 -> swap blocks random
@@ -137,12 +139,13 @@ def glitch_video(input_path: str, output_path: str,
                 frame = move_channel(frame, c, dx, dy)
 
         if roll in [1]:
-            frame = move_channels_random(frame, -15, 15)
+            delta = channels_movement * 15
+            frame = move_channels_random(frame, -delta, delta)
 
         if roll in [3, 5]:
             effect = configure_effect(width, height,
-                min_blocks =      int(block_effect * 2),
-                max_blocks =      int(block_effect * 10),
+                min_blocks =      1,
+                max_blocks =      block_count,
                 min_block_size =  int(block_size   * 100),
                 max_block_size =  int(block_size   * 800)
             )
@@ -164,7 +167,7 @@ def glitch_video(input_path: str, output_path: str,
                 )
 
         if roll_noise in [0, 1]:
-            frame = salt_and_pepper(frame, 0.75, 0.95)
+            frame = salt_and_pepper(frame, noise_intensity, 1 - noise_amount)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1
@@ -178,8 +181,8 @@ def glitch_video(input_path: str, output_path: str,
 def configure_effect(width: int, height: int, min_blocks=1, max_blocks=4,
                     min_block_size=1, max_block_size=None) -> dict:
     
-    max_size = max_block_size or min(height, width)
-    num_blocks  = np.random.randint(min_blocks, max_blocks)
+    max_size   = max_block_size or min(height, width)
+    num_blocks = np.random.randint(min_blocks, max_blocks)
     
     block_sizes = np.random.randint(
         max(1, min_block_size),

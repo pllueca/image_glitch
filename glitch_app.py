@@ -18,7 +18,7 @@ UPLOAD_FOLDER = "uploads"
 STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
-IMAGE_OPTIONS = {
+COMMON_OPTIONS = {
     "noise_intensity":   {
         "label": "Noise Intensity",
         "min": 0, "max": 1, "step": 0.01, "default": 0.5,
@@ -29,26 +29,25 @@ IMAGE_OPTIONS = {
         "min": 0, "max": 1, "step": 0.01, "default": 0.5,
         "type": float
     },
-    "block_movement":    {
-        "label": "Block Movement",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
-        "type": float
-    },
-    "block_size":        {
-        "label": "Block Size",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
-        "type": float
-    },
-    "block_count":        {
-        "label": "Block Count",
-        "min": 0, "max": 100, "step": 1, "default": 15,
-        "type": int
-    },
     "channels_movement": {
         "label": "Channels Movement",
         "min": 0, "max": 1, "step": 0.01, "default": 0.5,
         "type": float
+    },
+    "block_size": {
+        "label": "Block Size",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "block_count": {
+        "label": "Block Count",
+        "min": 0, "max": 100, "step": 1, "default": 15,
+        "type": int
     }
+}
+
+IMAGE_OPTIONS = {
+    **COMMON_OPTIONS
 }
 
 VIDEO_OPTIONS = {
@@ -62,16 +61,7 @@ VIDEO_OPTIONS = {
         "min": 5, "max": 30, "step": 1, "default": 15,
         "type": int
     },
-    "block_size": {
-        "label": "Block Size",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
-        "type": float
-    },
-    "block_effect": {
-        "label": "Block Effect Amount",
-        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
-        "type": float
-    }
+    **COMMON_OPTIONS
 }
 
 app = Flask(__name__, static_folder=STATIC_FOLDER)
