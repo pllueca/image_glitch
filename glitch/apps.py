@@ -142,7 +142,7 @@ def glitch_video(input_path: str, output_path: str,
         frame = frame.copy()
 
         if roll in roll_options['vibrate']:
-            frame = apply_fixed_channel_movement(frame, channels_movement)
+            frame = apply_random_channel_movement(frame, channels_movement)
 
         if roll in roll_options['channels']:
             frame = apply_progressive_channel_movement(frame, channels_movement, channel_directions, current_effect_frame)
@@ -170,7 +170,7 @@ def apply_progressive_channel_movement(frame: NumpyArray, channels_movement: flo
         frame = move_channel(frame, c, dx, dy)
     return frame
 
-def apply_fixed_channel_movement(frame: NumpyArray,
+def apply_random_channel_movement(frame: NumpyArray,
     channels_movement: float) -> NumpyArray:
     
     delta = channels_movement * 15
