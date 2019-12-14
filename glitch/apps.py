@@ -16,6 +16,8 @@ from .video_utils import (
     read_frame,
 )
 
+NumpyArray = np.ndarray  # for typing
+
 ASPECT_RATIOS = [
     [1, 1],
     [1, 4],
@@ -56,7 +58,7 @@ def glitch_image(input_path: str, output_path: str,
         delta = int(channels_movement * 20)
         image = move_channels_random(image, -delta, delta)
 
-    if noise_amount and noise_intensity:
+    if noise_intensity and noise_amount:
         image = salt_and_pepper(image, noise_intensity, 1 - noise_amount)
 
     imageio.imwrite(output_path, image)
@@ -85,6 +87,14 @@ def glitch_video(input_path: str, output_path: str,
     remaining_frames_effect = 0
     frame_idx = 0
     
+    roll_options = {
+      'nothing':              [0], 
+      'vibrate':              ([1]       if channels_movement else []),
+      'channels_progressive': ([0, 5]    if channels_movement else []),
+      'channels':             ([4, 5]    if channels_movement else []),
+      'blocks':               ([2, 3, 5] if block_count and block_size else []),
+    }
+
     while True:
         if frame_idx % 100 == 0:
             print(f"frame {frame_idx}")
@@ -98,76 +108,51 @@ def glitch_video(input_path: str, output_path: str,
                 min_effect_length, max_effect_length
             )
             current_effect_frame = 1
-            # roll for next effect: noise and block swapping
-            roll = np.random.randint(0, 7)
-            if frame_idx < 5:
-                roll = 4
-            #         roll = 0
 
-            # 0 -> move channels progresively
-            if roll in [0, 5]:
-                channel_directions = np.random.randint(-3, 3, (3, 2))
-                remaining_frames_effect = 20
+            # roll for next effect: noise and block swapping
+            rolls = [value for options in roll_options.values() for value in options]
+            
+            roll = np.random.randint(max(rolls) * 2 + 1)
+
+            # 0 -> nothing
+            if frame_idx < 5:
+                roll = 0
 
             # 1 -> "vibrate channels"
-            if roll in [1]:
+            if roll in roll_options['vibrate']:
                 remaining_frames_effect = 5
-            # 2 -> swap blocks static
-            if roll in [2]:
-                effect = configure_effect(width, height,
-                    min_blocks     = 1,
-                    max_blocks     = block_count,
-                    min_block_size = int(block_size * 200),
-                    max_block_size = int(block_size * 1200)
-                )
 
+            # 2 -> swap blocks static
             # 3 -> swap blocks random
+            
+            # 4, 5 -> move channels progresively
+            if roll in roll_options['channels']:
+                channel_directions = np.random.randint(-6, 6, (3, 2))
+                remaining_frames_effect = np.random.randint(min_effect_length, max_effect_length)
+            
             # 5 -> channels and blocks
-            # 4+ -> nothing
 
             roll_noise = np.random.randint(0, 3)
             # if 0 or 1 noise
         else:
             remaining_frames_effect -= 1
             current_effect_frame += 1
+        
         frame_orig = frame
         frame = frame.copy()
 
-        if roll in [0, 5]:
-            for c in range(3):
-                dx, dy = channel_directions[c] * current_effect_frame
-                frame = move_channel(frame, c, dx, dy)
+        if roll in roll_options['vibrate']:
+            frame = apply_fixed_channel_movement(frame, channels_movement)
 
-        if roll in [1]:
-            delta = channels_movement * 15
-            frame = move_channels_random(frame, -delta, delta)
+        if roll in roll_options['channels']:
+            frame = apply_progressive_channel_movement(frame, channels_movement, channel_directions, current_effect_frame)
 
-        if roll in [3, 5]:
-            effect = configure_effect(width, height,
-                min_blocks =      1,
-                max_blocks =      block_count,
-                min_block_size =  int(block_size   * 100),
-                max_block_size =  int(block_size   * 800)
-            )
+        if roll in roll_options['blocks']:
+            effect = apply_effect_config(width, height, block_count, block_size)
+            frame = apply_block_swap(frame_orig, frame, effect)
 
-        if roll in [2, 3, 5]:
-            for b in range(effect['num_blocks']):
-                origin_x, dst_x = effect['block_xs'][b]
-                origin_y, dst_y = effect['block_ys'][b]
-                swap_block(
-                    frame_orig,
-                    frame,
-                    origin_x,
-                    origin_y,
-                    dst_x,
-                    dst_y,
-                    effect['block_sizes'][b][0],
-                    effect['block_sizes'][b][1],
-                    effect['block_channels'][b],
-                )
-
-        if roll_noise in [0, 1]:
-            frame = salt_and_pepper(frame, noise_intensity, 1 - noise_amount)
+        if roll_noise in [0, 1] and noise_intensity and noise_amount:
+            frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1
@@ -177,6 +162,49 @@ def glitch_video(input_path: str, output_path: str,
     writer.stdin.close()
     writer.wait()
 
+def apply_progressive_channel_movement(frame: NumpyArray, channels_movement: float,
+    channel_directions: NumpyArray, current_effect_frame: int) -> NumpyArray:
+    
+    for c in range(3):
+        dx, dy = channel_directions[c] * int(current_effect_frame * channels_movement)
+        frame = move_channel(frame, c, dx, dy)
+    return frame
+
+def apply_fixed_channel_movement(frame: NumpyArray,
+    channels_movement: float) -> NumpyArray:
+    
+    delta = channels_movement * 15
+    frame = move_channels_random(frame, -delta, delta)
+    return frame
+
+def apply_effect_config(width: int, height: int, block_count: int, block_size: float):
+    return configure_effect(width, height,
+                min_blocks     = 1,
+                max_blocks     = block_count,
+                min_block_size = int(block_size * 100),
+                max_block_size = int(block_size * 800)
+            )
+
+def apply_block_swap(frame_orig: NumpyArray, frame: NumpyArray, effect: dict) -> NumpyArray:
+    for b in range(effect['num_blocks']):
+        origin_x, dst_x = effect['block_xs'][b]
+        origin_y, dst_y = effect['block_ys'][b]
+        swap_block(
+            frame_orig,
+            frame,
+            origin_x,
+            origin_y,
+            dst_x,
+            dst_y,
+            effect['block_sizes'][b][0],
+            effect['block_sizes'][b][1],
+            effect['block_channels'][b],
+        )
+    return frame
+
+def apply_salt_and_pepper(frame: NumpyArray, noise_intensity: int, noise_amount: int) -> NumpyArray:
+    frame = salt_and_pepper(frame, noise_intensity, 1 - noise_amount)
+    return frame
 
 def configure_effect(width: int, height: int, min_blocks=1, max_blocks=4,
                     min_block_size=1, max_block_size=None) -> dict:
