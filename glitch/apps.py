@@ -16,7 +16,7 @@ from .video_utils import (
     read_frame,
 )
 
-block_aspects = [
+ASPECT_RATIOS = [
     [1, 1],
     [1, 4],
     [4, 1]
@@ -43,7 +43,7 @@ def glitch_image(input_path: str, output_path: str,
 
             blocks_moved += num_blocks
 
-            aspect = choice(block_aspects)
+            aspect = choice(ASPECT_RATIOS)
             max_blocksize = [x * size for x in aspect]
             image = move_random_blocks(
                 image,
