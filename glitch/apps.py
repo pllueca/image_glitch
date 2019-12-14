@@ -112,7 +112,7 @@ def glitch_video(input_path: str, output_path: str,
                 remaining_frames_effect = 5
             # 2 -> swap blocks static
             if roll in [2]:
-                effect = swap_blocks_static(width, height,
+                effect = configure_effect(width, height,
                     min_blocks=int(block_effect * 2),
                     max_blocks =      int(block_effect * 8),
                     min_block_size =  int(block_size   * 200),
@@ -140,7 +140,7 @@ def glitch_video(input_path: str, output_path: str,
             frame = move_channels_random(frame, -15, 15)
 
         if roll in [3, 5]:
-            effect = swap_blocks_static(width, height,
+            effect = configure_effect(width, height,
                 min_blocks =      int(block_effect * 2),
                 max_blocks =      int(block_effect * 10),
                 min_block_size =  int(block_size   * 100),
@@ -175,8 +175,8 @@ def glitch_video(input_path: str, output_path: str,
     writer.wait()
 
 
-def swap_blocks_static(width: int, height: int, min_blocks=1, max_blocks=4,
-                    min_block_size=1, max_block_size=None) -> tuple:
+def configure_effect(width: int, height: int, min_blocks=1, max_blocks=4,
+                    min_block_size=1, max_block_size=None) -> dict:
     
     max_size = max_block_size or min(height, width)
     num_blocks  = np.random.randint(min_blocks, max_blocks)
