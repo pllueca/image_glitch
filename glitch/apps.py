@@ -30,7 +30,7 @@ def glitch_image(input_path: str, output_path: str,
     """
     image = imageio.imread(input_path)
 
-    if block_count > 0 and block_size > 0 and block_movement > 0:
+    if block_count and block_size and block_movement:
         size  = int(min(image.shape[0], image.shape[1]) / 2 * block_size)
 
         blocks_moved = 0
@@ -52,11 +52,11 @@ def glitch_image(input_path: str, output_path: str,
                 per_channel=True
             )
     
-    if channels_movement > 0:
+    if channels_movement:
         delta = int(channels_movement * 20)
         image = move_channels_random(image, -delta, delta)
 
-    if noise_amount > 0 and noise_intensity > 0:
+    if noise_amount and noise_intensity:
         image = salt_and_pepper(image, noise_intensity, 1 - noise_amount)
 
     imageio.imwrite(output_path, image)
