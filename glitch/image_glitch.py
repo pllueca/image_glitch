@@ -116,6 +116,64 @@ def move_random_blocks(
         )
     return res
 
+def scanlines(
+    arr: NumpyArray,
+    band_size: int = 5,
+    band_spacing: int = 15,
+    noisy: bool = False,
+    per_channel: bool = False,
+) -> NumpyArray:
+    """ swap `num_blocks` of size `blocksize` in arr """
+    res = arr.copy()
+    h, w, n_channels = arr.shape
+    
+    # Prevent block size being bigger than the image itself
+    for i in range(int(h / band_spacing)):
+        band_size_x = w
+        band_size_y = band_size
+
+        band_start_x = 0
+        band_start_y = band_spacing * i + np.random.randint(0, 2)
+
+        band_end_x = band_size_x
+        band_end_y = band_start_y + band_size
+
+        if band_end_y >= h:
+            break
+
+        if per_channel:
+            channel = np.random.randint(0, n_channels)
+        else:
+            channel = None
+
+        channel = channel or ...
+
+        if noisy:
+            res[
+                band_start_y : band_end_y,
+                band_start_x : band_end_x,
+                ...,
+            ] = np.multiply(arr[
+                    band_start_y : band_end_y,
+                    band_start_x : band_end_x,
+                    ...,
+                ],
+                np.random.randint(0, 256, (band_size_y, band_size_x, n_channels), np.uint8))
+        else:
+            res[
+                band_start_y : band_end_y,
+                band_start_x : band_end_x,
+                ...,
+            ] = (band_start_y % 10) / 40 + 0.75 * arr[
+                band_start_y : band_end_y,
+                band_start_x : band_end_x,
+                ...,
+            ]
+
+    res = res * (1 - np.random.random() / 5)
+
+    return res
+
 
 def flip_block(
     arr: NumpyArray, blocksize: Tuple[int, int], per_channel: bool

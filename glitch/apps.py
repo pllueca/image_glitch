@@ -7,6 +7,7 @@ from .image_glitch import (
     move_channels_random,
     salt_and_pepper,
     swap_block,
+    scanlines,
     move_channel,
 )
 from .video_utils import (
@@ -150,6 +151,8 @@ def glitch_video(input_path: str, output_path: str,
         if roll in roll_options['blocks']:
             effect = apply_effect_config(width, height, block_count, block_size)
             frame = apply_block_swap(frame_orig, frame, effect)
+
+        frame = scanlines(frame, 6, 12)
 
         if noise_intensity and noise_amount and roll_noise in [0, 1]:
             frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
