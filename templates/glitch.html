@@ -10,13 +10,13 @@
     </head>
     <body>
         <div class="container">
-            <div class="row Title">
+            <div class="row">
                 <button onClick="window.location.reload();">Regenerate</button>
             </div>
             <div class="row">
-                <div class="image col-md-8">
+                <div class="image">
                     {% if file_type == 'image' %}
-                        <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:800px;max-height:800px;object-fit:cover">
+                        <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:80vw;max-height:80vh;object-fit:cover">
                     {% elif file_type == 'video' %}
                         <video width="400" controls>
                             <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
@@ -25,8 +25,11 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="row">
+                <a class="button" href="/">Glitch another file</a>
+            </div>
             <div class="row OtherGlitches">
-                other glitches...                
+                other glitches...
             </div>
         </div>
     </body>

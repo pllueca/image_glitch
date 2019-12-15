@@ -18,6 +18,62 @@ UPLOAD_FOLDER = "uploads"
 STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
+IMAGE_OPTIONS = {
+    "noise_intensity":   {
+        "label": "Noise Intensity",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "noise_amount": {
+        "label": "Noise Amount",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "block_movement":    {
+        "label": "Block Movement",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "block_size":        {
+        "label": "Block Size",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "block_count":        {
+        "label": "Block Count",
+        "min": 0, "max": 100, "step": 1, "default": 15,
+        "type": int
+    },
+    "channels_movement": {
+        "label": "Channels Movement",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    }
+}
+
+VIDEO_OPTIONS = {
+    "min_effect_length": {
+        "label": "Minimum effect duration (in frames)",
+        "min": 1, "max": 10, "step": 1, "default": 1,
+        "type": int
+    },
+    "max_effect_length": {
+        "label": "Maximum effect duration (in frames)",
+        "min": 5, "max": 30, "step": 1, "default": 15,
+        "type": int
+    },
+    "block_size": {
+        "label": "Block Size",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    },
+    "block_effect": {
+        "label": "Block Effect Amount",
+        "min": 0, "max": 1, "step": 0.01, "default": 0.5,
+        "type": float
+    }
+}
+
 app = Flask(__name__, static_folder=STATIC_FOLDER)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = "1234asdf"
@@ -53,6 +109,9 @@ def hash_file(filename: str) -> str:
     with open(filename, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+def get_options(file_type, request) -> object:
+    opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS  
+    return { key: opt[key]['type'](request.args.get(key)) for key in opt.keys() }
 
 @app.route("/glitch/<string:gid>", methods=["GET"])
 def glitch(gid):
@@ -60,6 +119,10 @@ def glitch(gid):
     file_type = get_file_type(filepath)
     extension = file_extension(filepath)
     file_hash = hash_file(filepath)
+    
+    options = get_options(file_type, request)
+    
+    print(f"Submitted options: {options}")
 
     if not osp.exists(osp.join(STATIC_FOLDER, file_type, file_hash)):
         os.makedirs(osp.join(STATIC_FOLDER, file_type, file_hash))
@@ -83,9 +146,9 @@ def glitch(gid):
     glitched_filepath = osp.join(STATIC_FOLDER, file_type, file_hash, glitched_fname)
 
     if file_type == "image":
-        glitch_image(filepath, glitched_filepath)
+        glitch_image(filepath, glitched_filepath, **options)
     elif file_type == "video":
-        glitch_video(filepath, glitched_filepath)
+        glitch_video(filepath, glitched_filepath, **options)
 
     return render_template(
         "glitch.html",
@@ -102,6 +165,10 @@ def home():
             flash("No selected file")
             return redirect(request.url)
         file_type = request.form["file_type"]
+        
+        options_dict = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
+        options = { key: request.form[key] for key in options_dict.keys() }
+
         if file_type not in ALLOWED_EXTENSIONS.keys():
             flash("No file type selected")
             return redirect(request.url)
@@ -115,10 +182,13 @@ def home():
             return redirect(request.url)
 
         gid = signer.dumps(filepath)
-        return redirect(url_for("glitch", gid=gid))
+        return redirect(url_for("glitch", gid=gid, **options))
 
     else:  # Method GET
-        return render_template("home.html")
+        return render_template("home.html",
+                                    allowed_extensions=ALLOWED_EXTENSIONS,
+                                    image_options=IMAGE_OPTIONS,
+                                    video_options=VIDEO_OPTIONS)
 
 
 @app.route("/health_check", methods=["GET"])
