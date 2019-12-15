@@ -118,6 +118,7 @@ def move_random_blocks(
 
 def scanlines(
     arr: NumpyArray,
+    intensity: float = 0.5,
     band_size: int = 5,
     band_spacing: int = 15,
     noisy: bool = False,
@@ -160,11 +161,12 @@ def scanlines(
                 ],
                 np.random.randint(0, 256, (band_size_y, band_size_x, n_channels), np.uint8))
         else:
+            intensity_factor = 1 - ((band_start_y % 10) / 40 * intensity)
             res[
                 band_start_y : band_end_y,
                 band_start_x : band_end_x,
                 ...,
-            ] = (band_start_y % 10) / 40 + 0.75 * arr[
+            ] = intensity_factor * arr[
                 band_start_y : band_end_y,
                 band_start_x : band_end_x,
                 ...,

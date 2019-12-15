@@ -69,7 +69,7 @@ def glitch_video(input_path: str, output_path: str,
             min_effect_length: int = 1, max_effect_length: int = 15,
             noise_intensity: float = 0.5, noise_amount: float = 0.5,
             block_size: float = 0.5, block_count: int = 15,
-            channels_movement: float = 0.5) -> None:
+            channels_movement: float = 0.5, scanlines_intensity: float = 0.5) -> None:
     """ glitches a video. 
     Different types of glitches are applied to chunks of the video. Each glitch
     has a random duration between `min_effect_length` and `max_effect_length`
@@ -152,10 +152,11 @@ def glitch_video(input_path: str, output_path: str,
             effect = apply_effect_config(width, height, block_count, block_size)
             frame = apply_block_swap(frame_orig, frame, effect)
 
-        frame = scanlines(frame, 6, 12)
-
         if noise_intensity and noise_amount and roll_noise in [0, 1]:
             frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
+
+        if scanlines_intensity:
+            frame = scanlines(frame, scanlines_intensity, 6, 12)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1

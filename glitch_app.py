@@ -61,6 +61,11 @@ VIDEO_OPTIONS = {
         "min": 5, "max": 30, "step": 1, "default": 15,
         "type": int
     },
+    "scanlines_intensity": {
+        "label": "Scanlines intensity",
+        "min": 0, "max": 1, "step": 0.01, "default": 0,
+        "type": float
+    },
     **COMMON_OPTIONS
 }
 
