@@ -7,3 +7,4 @@ itsdangerous
 werkzeug
 sh
 ffmpeg-python
+libsass

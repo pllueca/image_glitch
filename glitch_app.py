@@ -4,6 +4,7 @@ import uuid
 import glob
 import shutil
 import hashlib
+import sass
 
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
 from werkzeug.utils import secure_filename
@@ -16,6 +17,8 @@ signer = URLSafeSerializer("super-secret")
 
 UPLOAD_FOLDER = "uploads"
 STATIC_FOLDER = "static"
+ASSETS_FOLDER = "assets"
+
 ALLOWED_EXTENSIONS = {"image": ["png", "jpg", "jpeg"], "video": ["mov", "mp4", "ts"]}
 
 COMMON_OPTIONS = {
@@ -80,6 +83,9 @@ for media_type in ALLOWED_EXTENSIONS:
     os.makedirs(os.path.join(UPLOAD_FOLDER, media_type), exist_ok=True)
     os.makedirs(os.path.join(STATIC_FOLDER, media_type), exist_ok=True)
 
+# Compile sass
+os.makedirs(f"{STATIC_FOLDER}/css", exist_ok=True)
+sass.compile(dirname=(f"{ASSETS_FOLDER}/scss", f"{STATIC_FOLDER}/css"))
 
 def allowed_file(filename, filetype):
     return (
