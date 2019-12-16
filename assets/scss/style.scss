@@ -81,11 +81,12 @@ main {
 
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-auto-rows: min-content;
     gap: units(1);
     
     .option {
       display: grid;
-      grid-template-rows: units(1) units(2);
+      grid-template-rows: units(2) units(2);
       grid-auto-flow: dense;
 
       label {
@@ -134,14 +135,15 @@ main {
       color: getcolor(text);
       height: 100%;
       
+      transition: all 200ms;
       &:hover {
-        background-color: getcolor(alt);
+        background-color: getcolor(white);
+        color: getcolor(black);
       }
     }
     
     a {
-      background-color: transparent;
-      border: solid units(0.5) getcolor(main);
+      background-color: getcolor(alt);
     }
     button {
       background-color: getcolor(main);

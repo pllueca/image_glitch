@@ -7,7 +7,7 @@ $green: #43944C;
 
 $colors: (
   main: $purple,
-  alt: $pink,
+  alt: darken($purple, 10%),
   bg: #222,
   black: darken(#222, 5%),
   text: white,

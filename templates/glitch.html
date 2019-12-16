@@ -58,24 +58,24 @@
     <button type="submit">Glitch!</button>
   </section>
 
-  <section class="other-glitches {{ 'hide' if not other_glitches }}">
+  <section class="gallery {{ 'hide' if not other_glitches }}">
     <h3>
       Previous glitches:
     </h3>
 
-    <ul class="glitches">
+    <ul>
       {% for filename in other_glitches %}
         <li class="file">
           {% set url = url_for('static', filename=glitched_fname) %}
           {% if file_type == 'image' %}
-            <img src="{{ url}}">
+            <img src="{{ url }}">
           {% elif file_type == 'video' %}
             <video controls>
               <source src="{{ url }}" type="video/mp4">
               Your browser does not support HTML5 video.
             </video>
           {% endif %}
-          <a href="{{url}}" target="_blank">view</a>
+          <a href="{{ url }}" target="_blank">view</a>
         </li>
       {% endfor %}
     </ul>
