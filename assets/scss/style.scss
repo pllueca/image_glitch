@@ -70,7 +70,7 @@ main {
   grid-template-rows: 1fr units(4) units(12);
   grid-template-areas: "options media"
                        "options submit"
-                       "previous previous";
+                       "gallery gallery";
 
   gap: units(1) units(2);
 
@@ -150,27 +150,29 @@ main {
     }
   }
   
-  .other-glitches {
-    grid-area: previous;
+}
 
-    h3 {
-      padding: units(1) 0;
-    }
+.gallery {
+  grid-area: gallery;
+  margin-top: units(2);
 
-    ul {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-auto-flow: dense;
-      gap: units(1);
+  h3 {
+    padding: units(1) 0;
+  }
 
-      li {
-        a {
-          display: block;
-          font-size: font-size(small);
-        }
-        video, img {
-          max-height: units(8);
-        }
+  ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: units(1);
+
+    li {
+      a {
+        display: block;
+        font-size: font-size(small);
+      }
+      video, img {
+        height: units(8);
+        width: auto;
       }
     }
   }

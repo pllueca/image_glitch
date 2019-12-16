@@ -10,6 +10,8 @@ from flask import Flask, flash, request, redirect, url_for, render_template, sen
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeSerializer
 from sassutils.wsgi import SassMiddleware
+from random import sample
+
 import requests
 
 from glitch.apps import glitch_image, glitch_video
@@ -200,8 +202,16 @@ def glitch(file_type):
 
 @app.route("/", methods=["GET"])
 def home():
+    images = glob.glob(
+        osp.join(STATIC_FOLDER, 'image', '*', "*_glitch_*")
+    )
+    videos = glob.glob(
+        osp.join(STATIC_FOLDER, 'video', '*', "*_glitch_*")
+    )
     return render_template("home.html",
-        allowed_extensions=ALLOWED_EXTENSIONS
+        allowed_extensions=ALLOWED_EXTENSIONS,
+        images=sample(images, 6),
+        videos=sample(videos, 6),
     )
 
 
