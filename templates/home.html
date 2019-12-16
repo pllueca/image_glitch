@@ -2,46 +2,41 @@
 
 {% block title %} Glitch {% endblock %}
 
-{% block content %}
+{% block header %}
 
-<div class="row Title">
-    <div class="col-sm-8">
-      <h1>Upload new File</h1>
-    </div>
-</div>
+<h1>Upload new File</h1>
+<p>Choose a video or image file to glitch.</p>
+<p>
+  <small>
+    Allowed extensions:
+    <strong>{{', '.join(allowed_extensions.image)}}</strong>
+    (image),
+    <strong>{{', '.join(allowed_extensions.video)}}</strong>
+    (video)
+  </small>
+</p>
 
-<div class="row description">
-    <div class="col-sm-12">
-        <p>Choose a video or image file to glitch.</p>
-        <p>
-          <small>
-            Allowed extensions:
-            <strong>{{', '.join(allowed_extensions.image)}}</strong>
-            (image),
-            <strong>{{', '.join(allowed_extensions.video)}}</strong>
-            (video)
-          </small>
-        </p>
-      </div>
-</div>
+{% endblock %}
+
+{% block main %}
 
 <div class="row">
-  <div class="image col-sm-12">
+  <div class="image col">
     <form method="post" enctype="multipart/form-data" class="form">
       
       <div class="form-group">
         <input type="file" name="file"><br>
       </div>
 
-      <div class="image-options col-sm-6">
+      <div class="image-options col">
         <div class="radio">
           <label><input type="radio" name="file_type" value="image" checked>Image</label>
         </div>
 
         {% for name, options in image_options.items() %}
         <div class="form-group row">
-          <label class="col-sm-6 col-form-label" for="image_{{name}}">{{options['label']}}</label>
-            <div class="col-sm-6">
+          <label class="col col-form-label" for="image_{{name}}">{{options['label']}}</label>
+            <div class="col">
               <input class="form-control" type="number" name="image_{{name}}" value="{{options['default']}}"
                     step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
             </div>  
@@ -49,15 +44,15 @@
           {% endfor %}
       </div>
       
-      <div class="video-options col-sm-6">
+      <div class="video-options col">
         <div class="radio">
           <label><input type="radio" name="file_type" value="video">Video</label>
         </div>
 
         {% for name, options in video_options.items() %}
           <div class="form-group row">
-            <label class="col-sm-6 col-form-label" for="video_{{name}}">{{options['label']}}</label>
-            <div class="col-sm-6">
+            <label class="col col-form-label" for="video_{{name}}">{{options['label']}}</label>
+            <div class="col">
               <input class="form-control" type="number" name="video_{{name}}" value="{{options['default']}}"
                     step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
             </div>  
@@ -65,7 +60,7 @@
         {% endfor %}
       </div>
 
-      <div class="form-group col-sm-12">
+      <div class="form-group col">
         <input type="submit" value="Upload">
       </div>
     </form>

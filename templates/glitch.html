@@ -2,11 +2,14 @@
 
 {% block title %} Glitch {% endblock %}
 
-{% block content %}
+{% block header %}
 
-<div class="row">
-    <button onClick="window.location.reload();">Regenerate</button>
-</div>
+<button onClick="window.location.reload();">Glitch!</button>
+
+{% endblock %}
+
+{% block main %}
+
 <div class="row">
     <div class="image">
         {% if file_type == 'image' %}
