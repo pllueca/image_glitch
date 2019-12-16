@@ -6,7 +6,9 @@ body {
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-
+  margin: 0;
+  padding: 0;
+  
   &.no-scroll {
     overflow: hidden;
     height: 100%;

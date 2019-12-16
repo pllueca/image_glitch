@@ -10,19 +10,44 @@ body {
   ans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+}
+
+header {
+  padding: units(1);
+  font-size: font-size(huge);
+
+  h1 {
+    height: initial;
+    text-align: center;
+  }
+}
+
 main {
   padding: units(1);
+  h2 {
+    padding: units(1);
+    text-align: center;
+  }
 }
 
 .choose-file-type {
   display: grid;
+  min-height: units(8);
   grid-template-columns: 1fr 1fr;
   gap: units(1);
 
   .button {
     background-color: indigo;
-    color: white;
-    text-decoration: none;
     padding: units(1);
+    color: white;
+    font-size: font-size(bigger);
+    font-weight: bold;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
   }
 }
