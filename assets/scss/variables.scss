@@ -1,0 +1,32 @@
+$theyellow: #FFE035;
+$theorange: #EF6546;
+$thefuchsia: #F11A65;
+$theblue: #389693;
+$thegreen: #43944C;
+
+$rainbow: ($thefuchsia, $theorange, $theyellow, $thegreen, $theblue);
+
+$colors: (
+  main: indigo,
+  alt: fuchsia,
+  bg: #222,
+  black: darken(#222, 5%),
+  text: white,
+  text-muted: #aaa,
+  gray: gray,
+  white: white,
+  transparent: rgba($color: white, $alpha: 0.0)
+) !default;
+
+// General
+$font-size: 16px;
+$font-sizes: (
+  default: $font-size,
+  smaller: $font-size * 0.5,
+  small:   $font-size * 0.75,
+  big:     $font-size * 1.5,
+  bigger:  $font-size * 2,
+  huge:    $font-size * 4
+);
+
+$unit: 16px;

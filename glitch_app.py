@@ -6,9 +6,10 @@ import shutil
 import hashlib
 import sass
 
-from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
+from flask import Flask, flash, request, redirect, url_for, render_template, send_file, jsonify
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeSerializer
+from sassutils.wsgi import SassMiddleware
 import requests
 
 from glitch.apps import glitch_image, glitch_video
@@ -85,7 +86,11 @@ for media_type in ALLOWED_EXTENSIONS:
 
 # Compile sass
 os.makedirs(f"{STATIC_FOLDER}/css", exist_ok=True)
-sass.compile(dirname=(f"{ASSETS_FOLDER}/scss", f"{STATIC_FOLDER}/css"))
+
+app.wsgi_app = SassMiddleware(app.wsgi_app, {
+    'glitch_app': ('assets/scss', 'static/css', '/static/css')
+})
+
 
 def allowed_file(filename, filetype):
     return (

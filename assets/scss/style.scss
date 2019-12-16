@@ -1,3 +1,28 @@
+@import './reset';
+@import './variables';
+@import './mixins';
+
 body {
-  background: black;
+  background: #222;
+  color: white;
+  font-size: font-size(default);
+  font-family: 'Gill S
+  ans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+main {
+  padding: units(1);
+}
+
+.choose-file-type {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: units(1);
+
+  .button {
+    background-color: indigo;
+    color: white;
+    text-decoration: none;
+    padding: units(1);
+  }
 }

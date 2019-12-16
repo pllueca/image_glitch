@@ -1,0 +1,138 @@
+html {
+  min-height: 100vh;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  &.no-scroll {
+    overflow: hidden;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+
+  cursor: pointer;
+
+  &:active,
+  &:focus,
+  &:hover {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+hr {
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+img,
+picture {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+// Avoid showing image text when file not loaded
+img { color: transparent; }
+img:not([src]){ visibility: hidden; }
+img[src], img[srcset] { visibility: visible;}
+
+*:focus {
+  outline: none;
+}
+
+ul,
+ol,
+li {
+  list-style-type: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+label {
+  color: inherit;
+}
+
+input {
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+
+  &:active,
+  &:focus {
+    border: 0;
+    outline: none;
+  }
+}
+
+input[type="file"]:focus,
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
+  outline: none;
+}
+
+textarea {
+  border: 0;
+  background-color: transparent;
+  padding: 0;
+  resize: none;
+}
+
+// Fix para el fondo amarillo en los campos de input con autofill en los browsers basados en webkit
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+input:-webkit-autofill:hover,
+textarea:-webkit-autofill:hover,
+select:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill:active {
+  box-shadow: 0 0 0 1000px white inset !important;
+
+  // Se le pone una animación muy larga al input para que jamas se llegue a ver el amarillo feo de fondo
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+// buttons
+button {
+  background-color: transparent;
+  border: 0;
+  margin: 0;
+  outline: 0 !important;
+  padding: 0;
+}
