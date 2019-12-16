@@ -162,6 +162,16 @@ main {
       grid-template-columns: repeat(6, 1fr);
       grid-auto-flow: dense;
       gap: units(1);
+
+      li {
+        a {
+          display: block;
+          font-size: font-size(small);
+        }
+        video, img {
+          max-height: units(8);
+        }
+      }
     }
   }
 }
