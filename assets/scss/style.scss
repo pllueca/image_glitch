@@ -3,11 +3,15 @@
 @import './mixins';
 
 body {
-  background: #222;
-  color: white;
+  background: getcolor(bg);
+  color: getcolor(text);
   font-size: font-size(default);
   font-family: 'Gill S
   ans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.hide {
+  display: none;
 }
 
 .wrapper {
@@ -17,11 +21,14 @@ body {
 
 header {
   padding: units(1);
-  font-size: font-size(huge);
 
   h1 {
     height: initial;
     text-align: center;
+    
+    &.huge {
+      font-size: font-size(huge);
+    }
   }
 }
 
@@ -40,14 +47,121 @@ main {
   gap: units(1);
 
   .button {
-    background-color: indigo;
-    padding: units(1);
-    color: white;
-    font-size: font-size(bigger);
-    font-weight: bold;
-    vertical-align: middle;
+    background-color: getcolor(main);
+    padding: units(3);
+    color: getcolor(text);
     text-align: center;
-    text-decoration: none;
-    text-transform: uppercase;
+    
+    span {
+      font-size: font-size(bigger);
+      font-weight: bold;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .info {
+      font-size: font-size(small);
+    }
+  }
+}
+
+.glitch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr units(4) units(12);
+  grid-template-areas: "options media"
+                       "options submit"
+                       "previous previous";
+
+  gap: units(1) units(2);
+
+  margin: units(1);
+
+  .options {
+    grid-area: options;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: units(1);
+    
+    .option {
+      display: grid;
+      grid-template-rows: units(1) units(2);
+      grid-auto-flow: dense;
+
+      label {
+        font-size: font-size(small);
+      }
+    }
+  }
+
+  .media {
+    grid-area: media;
+    background-color: getcolor(black);
+    padding: units(1);
+    
+    .input {
+      display: block;
+      width: 100%;
+
+      input {
+        padding: units(1) 0;
+      }
+    }
+
+    .output {
+      height: units(16);
+
+      video, img {
+        height: 100%;
+        width: auto;
+      }
+    }
+  }
+  
+  .submit {
+    grid-area: submit;
+    
+    text-align: center;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: units(1);
+
+    a, button {
+      cursor: pointer;
+      box-sizing: border-box;
+      padding: units(1);
+      color: getcolor(text);
+      height: 100%;
+      
+      &:hover {
+        background-color: getcolor(alt);
+      }
+    }
+    
+    a {
+      background-color: transparent;
+      border: solid units(0.5) getcolor(main);
+    }
+    button {
+      background-color: getcolor(main);
+      font-size: font-size(big);
+      text-transform: uppercase;
+    }
+  }
+  
+  .other-glitches {
+    grid-area: previous;
+
+    h3 {
+      padding: units(1) 0;
+    }
+
+    ul {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-flow: dense;
+      gap: units(1);
+    }
   }
 }

@@ -4,29 +4,80 @@
 
 {% block header %}
 
-<button onClick="window.location.reload();">Glitch!</button>
+<h1>Glitch</h1>
 
 {% endblock %}
 
 {% block main %}
 
-<div class="row">
-    <div class="image">
-        {% if file_type == 'image' %}
-            <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:80vw;max-height:80vh;object-fit:cover">
-        {% elif file_type == 'video' %}
-            <video width="400" controls>
-                <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
-                Your browser does not support HTML5 video.
-            </video>
-        {% endif %}
+<form method="post" enctype="multipart/form-data" class="glitch">
+  <section class="options">
+    {% for name, options in options.items() %}
+      <div class="option">
+        <label for="{{name}}">{{options['label']}}</label>
+        <input type="range" name="{{name}}" value="{{parameters[name]}}"
+              step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
+      </div>
+    {% endfor %}
+  </section>
+
+  <section class="media">
+    <div class="input">
+      <span class="choose-file">Choose a file
+        <small>
+          (Allowed extensions:
+          <strong>{{', '.join(allowed_extensions.image if file_type == 'image' else allowed_extensions.video)}}</strong>)
+        </small>
+      </span>
+      <input type="file" name="file">
+      <input type="hidden" name="filename" value="{{ glitched_fname }}">
     </div>
-</div>
-<div class="row">
-    <a class="button" href="/">Glitch another file</a>
-</div>
-<div class="row OtherGlitches">
-    other glitches...
-</div>
+
+    <div class="output {{'hide' if not glitched_fname}}">
+      {% if file_type == 'image' %}
+        <img src="{{ url_for('static', filename=glitched_fname)}}">
+      {% elif file_type == 'video' %}
+        <video controls>
+          <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="submit">
+    {% if file_type == 'image' %}
+      <a href="/glitch/video">Change to video</a>
+      {% else %}
+      <a href="/glitch/image">Change to image</a>
+    {% endif %}
+    <button type="submit">Glitch!</button>
+  </section>
+
+  <section class="other-glitches {{ 'hide' if other_glitches }}">
+    <h3>
+      Previous glitches:
+    </h3>
+
+    <ul class="glitches">
+      {% if file_type == 'image' %}
+        {% for filename in other_glitches %}
+        <li class="file">
+          <img src="{{ url_for('static', filename=glitched_fname)}}">
+        </li>
+        {% endfor %}
+      {% elif file_type == 'video' %}
+        {% for filename in other_glitches %}
+        <li class="file">
+          <video controls>
+            <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+        </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+  </section>
+</form>
 
 {% endblock %}

@@ -1,14 +1,13 @@
-$theyellow: #FFE035;
-$theorange: #EF6546;
-$thefuchsia: #F11A65;
-$theblue: #389693;
-$thegreen: #43944C;
-
-$rainbow: ($thefuchsia, $theorange, $theyellow, $thegreen, $theblue);
+$yellow: #FFE035;
+$orange: #EF6546;
+$pink: #F11A65;
+$purple: #901A65;
+$blue: #389693;
+$green: #43944C;
 
 $colors: (
-  main: indigo,
-  alt: fuchsia,
+  main: $purple,
+  alt: $pink,
   bg: #222,
   black: darken(#222, 5%),
   text: white,

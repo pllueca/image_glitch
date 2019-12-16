@@ -115,86 +115,94 @@ def hash_file(filename: str) -> str:
     with open(filename, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+
 def get_options(file_type, request) -> object:
     opt = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
     return { key: opt[key]['type'](request.args.get(key)) for key in opt.keys() }
 
-@app.route("/glitch/<string:gid>", methods=["GET"])
-def glitch(gid):
-    filepath = signer.loads(gid)
-    file_type = get_file_type(filepath)
-    extension = file_extension(filepath)
-    file_hash = hash_file(filepath)
-    
-    options = get_options(file_type, request)
-    
-    print(f"Submitted options: {options}")
 
-    if not osp.exists(osp.join(STATIC_FOLDER, file_type, file_hash)):
-        os.makedirs(osp.join(STATIC_FOLDER, file_type, file_hash))
-        new_filepath = osp.join(
-            STATIC_FOLDER, file_type, file_hash, f"original.{extension}"
-        )
-        shutil.copy(filepath, new_filepath)
-        filepath = new_filepath
-        current_glitch_num = 0
-        other_glitches = []
-    else:
-        # glitch files are postfixed with -glitch-XX.ext
-        other_glitches = glob.glob(
-            osp.join(STATIC_FOLDER, file_type, file_hash, "*_glitch_*")
-        )
+@app.route("/glitch/<string:file_type>", methods=["GET", "POST"])
+def glitch(file_type):
+    options = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
+    params  = { key: options[key]['type'](options[key]['default']) for key in options.keys() }
+
+    if request.method == "POST":
+        reuse_last_file = False
+
+        file = request.files.get("file", "")
+        if file == "" or file.filename == "":
+            if request.form['filename']:
+                reuse_last_file = True
+            else:
+                flash("No selected file")
+                return redirect(request.url)
+        
+        params = { key: options[key]['type'](request.form[key]) for key in options.keys() }
+        print(f"Submitted params: {params}")
+        
+        if not reuse_last_file:
+            if allowed_file(file.filename, file_type):
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config["UPLOAD_FOLDER"], file_type, filename)
+                file.save(filepath)
+            else:
+                flash("Invalid filetype")
+                return redirect(request.url)
+        else:
+            fname = request.form['filename']
+            file_hash = os.path.basename(fname).split('_')[0]
+            filepath = osp.join(STATIC_FOLDER, file_type, file_hash, f"original.{file_extension(fname)}")
+
+        extension = file_extension(filepath)
+        file_hash = hash_file(filepath)
+        
+        previously_glitched = osp.exists(osp.join(STATIC_FOLDER, file_type, file_hash))
+        
+        if not previously_glitched:
+            os.makedirs(osp.join(STATIC_FOLDER, file_type, file_hash))
+            new_filepath = osp.join(
+                STATIC_FOLDER, file_type, file_hash, f"original.{extension}"
+            )
+            shutil.copy(filepath, new_filepath)
+            filepath = new_filepath
+            other_glitches = []
+        else:
+            # glitch files are postfixed with -glitch-XX.ext
+            other_glitches = glob.glob(
+                osp.join(STATIC_FOLDER, file_type, file_hash, "*_glitch_*")
+            )
+        
         current_glitch_num = len(other_glitches)
-
-    glitched_fname = f"{file_hash}_glitch_{current_glitch_num}.{extension}"
-    current_glitch_num += 1
-
-    glitched_filepath = osp.join(STATIC_FOLDER, file_type, file_hash, glitched_fname)
-
-    if file_type == "image":
-        glitch_image(filepath, glitched_filepath, **options)
-    elif file_type == "video":
-        glitch_video(filepath, glitched_filepath, **options)
+        
+        glitched_fname = f"{file_hash}_glitch_{current_glitch_num}.{extension}"
+        glitched_filepath = osp.join(STATIC_FOLDER, file_type, file_hash, glitched_fname)
+        
+        glitched_fname = osp.join(file_type, file_hash, glitched_fname)
+        
+        if file_type == "image":
+            glitch_image(filepath, glitched_filepath, **params)
+        elif file_type == "video":
+            glitch_video(filepath, glitched_filepath, **params)
+    else:
+        glitched_fname = ""
+        other_glitches = []
 
     return render_template(
         "glitch.html",
-        glitched_fname=osp.join(file_type, file_hash, glitched_fname),
+        allowed_extensions=ALLOWED_EXTENSIONS,
+        options=options,
+        parameters=params,
+        glitched_fname=glitched_fname,
+        other_glitches=other_glitches,
         file_type=file_type,
     )
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def home():
-    if request.method == "POST":
-        file = request.files.get("file", "")
-        if file == "" or file.filename == "":
-            flash("No selected file")
-            return redirect(request.url)
-        file_type = request.form["file_type"]
-        
-        options_dict = IMAGE_OPTIONS if file_type == 'image' else VIDEO_OPTIONS
-        options = { key: request.form[f"{file_type}_{key}"] for key in options_dict.keys() }
-
-        if file_type not in ALLOWED_EXTENSIONS.keys():
-            flash("No file type selected")
-            return redirect(request.url)
-
-        if allowed_file(file.filename, file_type):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], file_type, filename)
-            file.save(filepath)
-        else:
-            flash("Invalid filetype")
-            return redirect(request.url)
-
-        gid = signer.dumps(filepath)
-        return redirect(url_for("glitch", gid=gid, **options))
-
-    else:  # Method GET
-        return render_template("home.html",
-                                    allowed_extensions=ALLOWED_EXTENSIONS,
-                                    image_options=IMAGE_OPTIONS,
-                                    video_options=VIDEO_OPTIONS)
+    return render_template("home.html",
+        allowed_extensions=ALLOWED_EXTENSIONS
+    )
 
 
 @app.route("/health_check", methods=["GET"])
