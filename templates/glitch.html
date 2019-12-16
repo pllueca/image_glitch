@@ -1,36 +1,29 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Glitch</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <button onClick="window.location.reload();">Regenerate</button>
-            </div>
-            <div class="row">
-                <div class="image">
-                    {% if file_type == 'image' %}
-                        <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:80vw;max-height:80vh;object-fit:cover">
-                    {% elif file_type == 'video' %}
-                        <video width="400" controls>
-                            <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
-                          Your browser does not support HTML5 video.
-                        </video>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row">
-                <a class="button" href="/">Glitch another file</a>
-            </div>
-            <div class="row OtherGlitches">
-                other glitches...
-            </div>
-        </div>
-    </body>
-</html>
+{% extends "layout.html" %}
+
+{% block title %} Glitch {% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <button onClick="window.location.reload();">Regenerate</button>
+</div>
+<div class="row">
+    <div class="image">
+        {% if file_type == 'image' %}
+            <img src="{{ url_for('static', filename=glitched_fname)}}" style="max-width:80vw;max-height:80vh;object-fit:cover">
+        {% elif file_type == 'video' %}
+            <video width="400" controls>
+                <source src="{{ url_for('static', filename=glitched_fname) }}" type="video/mp4">
+                Your browser does not support HTML5 video.
+            </video>
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <a class="button" href="/">Glitch another file</a>
+</div>
+<div class="row OtherGlitches">
+    other glitches...
+</div>
+
+{% endblock %}
