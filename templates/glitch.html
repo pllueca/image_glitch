@@ -66,16 +66,15 @@
     <ul>
       {% for filename in other_glitches %}
         <li class="file">
-          {% set url = url_for('static', filename=glitched_fname) %}
           {% if file_type == 'image' %}
-            <img src="{{ url }}">
+            <img src="/{{ filename }}">
           {% elif file_type == 'video' %}
             <video controls>
-              <source src="{{ url }}" type="video/mp4">
+              <source src="/{{ filename }}" type="video/mp4">
               Your browser does not support HTML5 video.
             </video>
           {% endif %}
-          <a href="{{ url }}" target="_blank">view</a>
+          <a href="/{{ filename }}" target="_blank">view</a>
         </li>
       {% endfor %}
     </ul>
