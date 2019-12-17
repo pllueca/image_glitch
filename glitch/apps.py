@@ -183,10 +183,9 @@ def apply_random_channel_movement(frame: NumpyArray,
 
 def apply_effect_config(width: int, height: int, block_count: int, block_size: float):
     return configure_effect(width, height,
-                min_blocks     = 1,
-                max_blocks     = block_count,
-                min_block_size = int(block_size * 100),
-                max_block_size = int(block_size * 800)
+                min_blocks = 1,
+                max_blocks = block_count,
+                block_size = block_size
             )
 
 def apply_block_swap(frame_orig: NumpyArray, frame: NumpyArray, effect: dict) -> NumpyArray:
@@ -210,27 +209,27 @@ def apply_salt_and_pepper(frame: NumpyArray, noise_intensity: int, noise_amount:
     frame = salt_and_pepper(frame, noise_intensity, 1 - noise_amount)
     return frame
 
-def configure_effect(width: int, height: int, min_blocks=1, max_blocks=4,
-                    min_block_size=1, max_block_size=None) -> dict:
+def configure_effect(
+    width: int,
+    height: int,
+    min_blocks: int = 1,
+    max_blocks: int = 4,
+    block_size: float = 0.5) -> dict:
     
-    max_size   = max_block_size or min(height, width)
+    max_size   = min(height, width) * block_size
     num_blocks = np.random.randint(min_blocks, max_blocks)
     
-    block_sizes = np.random.randint(
-        max(1, min_block_size),
-        min(max_size, max_block_size),
-        (num_blocks, 2))
-    
+    block_sizes    = np.random.randint(0, max_size, (num_blocks, 2))
     block_channels = np.random.randint(0, 3, (num_blocks,))
 
     block_xs, block_ys = [], []
 
     for b in range(num_blocks):
         block_xs.append(
-            np.random.randint(0, height - block_sizes[b][0], (2,))
+            np.random.randint(0, max(2, height - block_sizes[b][0]), (2,))
         )
         block_ys.append(
-            np.random.randint(0, width  - block_sizes[b][1], (2,))
+            np.random.randint(0, max(2, width  - block_sizes[b][1]), (2,))
         )
 
     return {
