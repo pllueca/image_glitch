@@ -1,82 +1,53 @@
-<!doctype html>
-<html>
-  <head>
-      <title>Glitch</title>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-        <div class="row Title">
-            <div class="col-sm-8">
-              <h1>Upload new File</h1>
-            </div>
-        </div>
-        
-        <div class="row description">
-            <div class="col-sm-12">
-                <p>Choose a video or image file to glitch.</p>
-                <p>
-                  <small>
-                    Allowed extensions:
-                    <strong>{{', '.join(allowed_extensions.image)}}</strong>
-                    (image),
-                    <strong>{{', '.join(allowed_extensions.video)}}</strong>
-                    (video)
-                   </small>
-                </p>
-              </div>
-        </div>
+{% extends "layout.html" %}
 
-        <div class="row">
-          <div class="image col-sm-12">
-            <form method="post" enctype="multipart/form-data" class="form">
-              
-              <div class="form-group">
-                <input type="file" name="file"><br>
-              </div>
+{% block title %} Glitch {% endblock %}
 
-              <div class="image-options col-sm-6">
-                <div class="radio">
-                  <label><input type="radio" name="file_type" value="image" checked>Image</label>
-                </div>
+{% block header %}
 
-                {% for name, options in image_options.items() %}
-                <div class="form-group row">
-                  <label class="col-sm-6 col-form-label" for="{{name}}">{{options['label']}}</label>
-                    <div class="col-sm-6">
-                      <input class="form-control" type="number" name="{{name}}" value="{{options['default']}}"
-                             step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
-                    </div>  
-                  </div>
-                  {% endfor %}
-              </div>
-              
-              <div class="video-options col-sm-6">
-                <div class="radio">
-                  <label><input type="radio" name="file_type" value="video">Video</label>
-                </div>
+<h1 class="huge">Glitch</h1>
 
-                {% for name, options in video_options.items() %}
-                  <div class="form-group row">
-                    <label class="col-sm-6 col-form-label" for="{{name}}">{{options['label']}}</label>
-                    <div class="col-sm-6">
-                      <input class="form-control" type="number" name="{{name}}" value="{{options['default']}}"
-                             step="{{options['step']}}" min="{{options['min']}}" max="{{options['max']}}">
-                    </div>  
-                  </div>
-                {% endfor %}
-              </div>
+{% endblock %}
 
-              <div class="form-group col-sm-12">
-                <input type="submit" value="Upload">
-              </div>
-            </form>
-          </div>
-        </div>
-    </div>
-  </body>
-</html>
+{% block main %}
+
+<h2>What are you going to glitch today?</h2>
+
+<section class="choose-file-type">
+  <a href="/glitch/image" class="button">
+    <span>Image</span>
+    <p class="info">
+      Accepted extensions:
+      <strong>{{', '.join(allowed_extensions.image)}}</strong>
+    </p>
+  </a>
+  <a href="/glitch/video" class="button">
+    <span>Video</span>
+    <p class="info">
+      Accepted extensions:
+      <strong>{{', '.join(allowed_extensions.video)}}</strong>
+    </p>
+  </a>
+</section>
+
+<section class="gallery">
+  <ul>
+    {% for image in images %}
+      <li class="file">
+        <img src="{{image}}">
+        <a href="{{image}}" target="_blank">view</a>
+      </li>
+    {% endfor %}
+    
+    {% for video in videos %}
+      <li class="file">
+        <video controls>
+          <source src="{{video}}" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+        <a href="{{video}}" target="_blank">view</a>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+
+{% endblock %}

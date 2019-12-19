@@ -1,0 +1,53 @@
+@function getcolor($value) {
+  @return map-get($colors, $value);
+}
+
+@function font-size($value) {
+  @return map-get($font-sizes, $value);
+}
+
+@function font-family($value) {
+  @return map-get($font-families, $value);
+}
+
+@function units($value) {
+  @return $unit * $value;
+}
+
+@function rainbow($n, $total) {
+  $value: ($n / $total);
+  $nColors: length($rainbow);
+  $vOne: max(1,        floor($value * $nColors));
+  $vTwo: min($nColors, ceil($value * $nColors));
+  $one: nth($rainbow, $vOne);
+  $two: nth($rainbow, $vTwo);
+
+  @return mix($one, $two, percentage($value * $nColors / $total));
+}
+
+@mixin animation($properties) {
+  animation:         $properties;
+  -webkit-animation: $properties;
+  -moz-animation:    $properties;
+  -ms-animation:     $properties;
+  -o-animation:      $properties;
+}
+
+@mixin keyframes($animation) {
+  @-webkit-keyframes #{$animation} {
+    @content;
+  }
+  @-moz-keyframes #{$animation} {
+    @content;
+  }
+  @-o-keyframes #{$animation} {
+    @content;
+  }
+  @keyframes #{$animation} {
+    @content;
+  }
+}
+
+@mixin standout($color) {
+	border: 2px solid $color;
+}

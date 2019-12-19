@@ -1,0 +1,31 @@
+$yellow: #FFE035;
+$orange: #EF6546;
+$pink: #F11A65;
+$purple: #901A65;
+$blue: #389693;
+$green: #43944C;
+
+$colors: (
+  main: $purple,
+  alt: darken($purple, 10%),
+  bg: #222,
+  black: darken(#222, 5%),
+  text: white,
+  text-muted: #aaa,
+  gray: gray,
+  white: white,
+  transparent: rgba($color: white, $alpha: 0.0)
+) !default;
+
+// General
+$font-size: 16px;
+$font-sizes: (
+  default: $font-size,
+  smaller: $font-size * 0.5,
+  small:   $font-size * 0.75,
+  big:     $font-size * 1.5,
+  bigger:  $font-size * 2,
+  huge:    $font-size * 4
+);
+
+$unit: 16px;
