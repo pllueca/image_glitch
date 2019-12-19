@@ -25,7 +25,6 @@ ASPECT_RATIOS = [[1, 1], [1, 4], [4, 1]]
 def glitch_image(
     input_path: str,
     output_path: str,
-    float=0.5,
     block_size: float = 0.5,
     block_count: int = 15,
     noise_intensity: float = 0.5,
