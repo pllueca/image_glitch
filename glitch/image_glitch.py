@@ -116,6 +116,7 @@ def move_random_blocks(
         )
     return res
 
+
 def scanlines(
     arr: NumpyArray,
     intensity: float = 0.5,
@@ -127,7 +128,7 @@ def scanlines(
     """ swap `num_blocks` of size `blocksize` in arr """
     res = arr.copy()
     h, w, n_channels = arr.shape
-    
+
     # Prevent block size being bigger than the image itself
     for i in range(int(h / band_spacing)):
         band_size_x = w
@@ -150,27 +151,18 @@ def scanlines(
         channel = channel or ...
 
         if noisy:
-            res[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ] = np.multiply(arr[
-                    band_start_y : band_end_y,
-                    band_start_x : band_end_x,
-                    ...,
-                ],
-                np.random.randint(0, 256, (band_size_y, band_size_x, n_channels), np.uint8))
+            res[band_start_y:band_end_y, band_start_x:band_end_x, ...,] = np.multiply(
+                arr[band_start_y:band_end_y, band_start_x:band_end_x, ...,],
+                np.random.randint(
+                    0, 256, (band_size_y, band_size_x, n_channels), np.uint8
+                ),
+            )
         else:
             intensity_factor = 1 - ((band_start_y % 10) / 40 * intensity)
-            res[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ] = intensity_factor * arr[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ]
+            res[band_start_y:band_end_y, band_start_x:band_end_x, ...,] = (
+                intensity_factor
+                * arr[band_start_y:band_end_y, band_start_x:band_end_x, ...,]
+            )
 
     res = res * (1 - np.random.random() / 5)
 
