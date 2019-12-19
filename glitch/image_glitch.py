@@ -146,9 +146,7 @@ def scanlines(
         if per_channel:
             channel = np.random.randint(0, n_channels)
         else:
-            channel = None
-
-        channel = channel or ...
+            channel = ...
 
         if noisy:
             res[band_start_y:band_end_y, band_start_x:band_end_x, ...,] = np.multiply(
