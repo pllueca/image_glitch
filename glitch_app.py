@@ -72,6 +72,16 @@ VIDEO_OPTIONS = {
         "min": 0, "max": 1, "step": 0.01, "default": 0,
         "type": float
     },
+    "scanlines_size": {
+        "label": "Scanlines size",
+        "min": 0, "max": 20, "step": 1, "default": 8,
+        "type": int
+    },
+    "scanlines_spacing": {
+        "label": "Scanlines spacing",
+        "min": 0, "max": 5, "step": 0.1, "default": 2,
+        "type": float
+    },
     **COMMON_OPTIONS
 }
 
