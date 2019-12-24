@@ -199,19 +199,26 @@ def glitch(file_type):
         file_type=file_type,
     )
 
+NUM_DISPLAYED_GLITCHES = 6
 
 @app.route("/", methods=["GET"])
 def home():
     images = glob.glob(
         osp.join(STATIC_FOLDER, 'image', '*', "*_glitch_*")
     )
+    if images:
+        images = sample(images, min(NUM_DISPLAYED_GLITCHES, len(images)))
+
     videos = glob.glob(
         osp.join(STATIC_FOLDER, 'video', '*', "*_glitch_*")
     )
+    if videos:
+        videos = sample(videos, min(NUM_DISPLAYED_GLITCHES, len(videos)))
+
     return render_template("home.html",
         allowed_extensions=ALLOWED_EXTENSIONS,
-        images=sample(images, 6),
-        videos=sample(videos, 6),
+        images=images,
+        videos=videos,
     )
 
 
