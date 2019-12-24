@@ -69,7 +69,9 @@ def glitch_video(input_path: str, output_path: str,
             min_effect_length: int = 1, max_effect_length: int = 15,
             noise_intensity: float = 0.5, noise_amount: float = 0.5,
             block_size: float = 0.5, block_count: int = 15,
-            channels_movement: float = 0.5, scanlines_intensity: float = 0.5) -> None:
+            channels_movement: float = 0.5, scanlines_intensity: float = 0.5,
+            scanlines_noise: float = 0.5, scanlines_size: float = 0.5,
+            scanlines_spacing: float = 0.5) -> None:
     """ glitches a video. 
     Different types of glitches are applied to chunks of the video. Each glitch
     has a random duration between `min_effect_length` and `max_effect_length`
@@ -79,6 +81,7 @@ def glitch_video(input_path: str, output_path: str,
     * swap random blocks of the video, same blocks every time
     * swap random blocks of the video, random blocks every time
     * salt and pepper noise
+    * scanlines effect
     """
     width, height = get_video_size(input_path)
     reader = start_ffmpeg_reader(input_path)
@@ -155,8 +158,11 @@ def glitch_video(input_path: str, output_path: str,
         if noise_intensity and noise_amount and roll_noise in [0, 1]:
             frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
 
-        if scanlines_intensity:
-            frame = scanlines(frame, scanlines_intensity, 6, 12)
+        if scanlines_intensity and scanlines_size:
+            frame = scanlines(frame,
+                intensity=scanlines_intensity,
+                band_size=scanlines_size,
+                band_spacing=scanlines_spacing)
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1
