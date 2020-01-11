@@ -162,32 +162,29 @@ def scanlines(
     arr: NumpyArray,
     intensity: float = 0.5,
     band_size: int = 5,
-    band_spacing: int = 15,
-    noisy: bool = False,
-    per_channel: bool = False,
+    band_spacing: float = 2.0,
 ) -> NumpyArray:
-    """ swap `num_blocks` of size `blocksize` in arr """
+    """ darken horizontal sections of image with parameterized height and spacing """
     res = arr.copy()
     h, w, n_channels = arr.shape
 
-    # Prevent block size being bigger than the image itself
-    for i in range(int(h / band_spacing)):
-        band_size_x = w
-        band_size_y = band_size
+    space_between_bands = int(band_size * band_spacing)
 
-        band_start_x = 0
-        band_start_y = band_spacing * i + np.random.randint(0, 2)
+    band_count = int(h / space_between_bands)
 
-        band_end_x = band_size_x
+    for i in range(band_count):
+        band_start_y = space_between_bands * i + np.random.randint(0, 2)
+
         band_end_y = band_start_y + band_size
 
         if band_end_y >= h:
             break
 
-        if per_channel:
-            channel = np.random.randint(0, n_channels)
-        else:
-            channel = None
+        intensity_factor = 1 - ((band_start_y % 10) / 40 * intensity)
+
+        res[band_start_y:band_end_y, 0:w, ...,] = (
+            intensity_factor * arr[band_start_y:band_end_y, 0:w, ...,]
+        )
 
         channel = channel or ...
 

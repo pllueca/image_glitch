@@ -91,6 +91,7 @@ def glitch_video(
     * swap random blocks of the video, same blocks every time
     * swap random blocks of the video, random blocks every time
     * salt and pepper noise
+    * scanlines effect
     """
     width, height = get_video_size(input_path)
     reader = start_ffmpeg_reader(input_path)
@@ -171,8 +172,13 @@ def glitch_video(
         if noise_intensity and noise_amount and roll_noise in [0, 1]:
             frame = apply_salt_and_pepper(frame, noise_intensity, noise_amount)
 
-        if scanlines_intensity:
-            frame = scanlines(frame, scanlines_intensity, 6, 12)
+        if scanlines_intensity and scanlines_size:
+            frame = scanlines(
+                frame,
+                intensity=scanlines_intensity,
+                band_size=scanlines_size,
+                band_spacing=scanlines_spacing,
+            )
 
         writer.stdin.write(frame.astype(np.uint8).tobytes())
         frame_idx += 1
