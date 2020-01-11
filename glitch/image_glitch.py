@@ -1,6 +1,8 @@
 """ Image glitchig functions """
 
 from typing import Optional, Tuple
+from skimage.transform import resize
+
 import numpy as np
 
 NumpyArray = np.ndarray  # for typing
@@ -72,6 +74,45 @@ def swap_block(
     return dst_arr
 
 
+def swap_block_arbitrary_size(
+    origin_arr: NumpyArray,
+    dst_arr: NumpyArray,
+    origin_block: Tuple[int, int, int, int],
+    dst_block: Tuple[int, int, int, int],
+    channel: Optional[int] = None,
+) -> NumpyArray:
+    """ Swap a block in the images. blocks are defined by tlx, tly, width, height. If different
+    size blocks, resize """
+    channel = channel or ...
+    tl_x_origin, tl_y_origin, width_origin, height_origin = origin_block
+    block_1 = origin_arr[
+        tl_x_origin : tl_x_origin + width_origin,
+        tl_y_origin : tl_y_origin + height_origin,
+        channel,
+    ]
+
+    tl_x_dst, tl_y_dst, width_dst, height_dst = dst_block
+    block_2 = origin_arr[
+        tl_x_dst : tl_x_dst + width_dst, tl_y_dst : tl_y_dst + height_dst, channel,
+    ]
+
+    if block_1.shape != block_2.shape:
+        # resize both blocks
+        block_1 = resize(block_1, (width_dst, height_dst), preserve_range=True)
+        block_2 = resize(block_2, (width_origin, height_origin), preserve_range=True)
+
+    dst_arr[
+        tl_x_dst : tl_x_dst + width_dst, tl_y_dst : tl_y_dst + height_dst, channel,
+    ] = block_1
+    dst_arr[
+        tl_x_origin : tl_x_origin + width_origin,
+        tl_y_origin : tl_y_origin + height_origin,
+        channel,
+    ] = block_2
+
+    return dst_arr
+
+
 def move_random_blocks(
     arr: NumpyArray,
     max_blocksize: Tuple[int, int] = (5, 5),
@@ -116,6 +157,7 @@ def move_random_blocks(
         )
     return res
 
+
 def scanlines(
     arr: NumpyArray,
     intensity: float = 0.5,
@@ -127,7 +169,7 @@ def scanlines(
     """ swap `num_blocks` of size `blocksize` in arr """
     res = arr.copy()
     h, w, n_channels = arr.shape
-    
+
     # Prevent block size being bigger than the image itself
     for i in range(int(h / band_spacing)):
         band_size_x = w
@@ -150,27 +192,18 @@ def scanlines(
         channel = channel or ...
 
         if noisy:
-            res[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ] = np.multiply(arr[
-                    band_start_y : band_end_y,
-                    band_start_x : band_end_x,
-                    ...,
-                ],
-                np.random.randint(0, 256, (band_size_y, band_size_x, n_channels), np.uint8))
+            res[band_start_y:band_end_y, band_start_x:band_end_x, ...,] = np.multiply(
+                arr[band_start_y:band_end_y, band_start_x:band_end_x, ...,],
+                np.random.randint(
+                    0, 256, (band_size_y, band_size_x, n_channels), np.uint8
+                ),
+            )
         else:
             intensity_factor = 1 - ((band_start_y % 10) / 40 * intensity)
-            res[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ] = intensity_factor * arr[
-                band_start_y : band_end_y,
-                band_start_x : band_end_x,
-                ...,
-            ]
+            res[band_start_y:band_end_y, band_start_x:band_end_x, ...,] = (
+                intensity_factor
+                * arr[band_start_y:band_end_y, band_start_x:band_end_x, ...,]
+            )
 
     res = res * (1 - np.random.random() / 5)
 
